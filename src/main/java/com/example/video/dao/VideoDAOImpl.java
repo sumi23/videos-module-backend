@@ -6,11 +6,14 @@ import java.io.File;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import com.example.video.exception.DBException;
@@ -503,9 +506,16 @@ public class VideoDAOImpl implements IVideoDAO {
 			
 			}
 			transaction.commit();
-		} catch (Exception e) {
-			throw new DBException("name and url must be unique");
-		} finally {
+		} catch (PersistenceException e) {
+			System.out.println("cause is "+e.getCause().toString());
+			if(e.getCause().toString().contains("ConstraintViolationException"))
+			{
+				System.out.println("cause is");
+			  throw new DBException("Video already exists",e);
+			}
+		} 
+		
+		finally {
 			session.close();
 		}
 		return video;

@@ -10,12 +10,15 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 
+import javax.persistence.PersistenceException;
+
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -110,7 +113,7 @@ public class VideoServiceImpl implements IVideoService {
 			videodao.toggleStatus(videoId);
 		} 
 		catch (DBException e) {
-			throw new ServiceException("Unable to toggle status", e);
+			throw new ServiceException("Unable to toggle status");
 		}
 	}
 	@Override
@@ -121,7 +124,7 @@ public class VideoServiceImpl implements IVideoService {
 			video=(List<Video>)videodao.deleteVideoById(videoId);
 		}
 		catch (DBException e) {
-			throw new ServiceException("Unable to delete records for video", e);
+			throw new ServiceException("Unable to delete records for video");
 		}
 		return video;
 	}
@@ -130,8 +133,19 @@ public class VideoServiceImpl implements IVideoService {
 		try {
 			videodao.addVideo(video);
 		} 
-		catch (DBException e) {
-			throw new ServiceException("Unable to insert records for video", e);
+//		catch (DBException e) {
+//			throw new  DBException("name and url must be unique",e);
+//		}
+		catch (PersistenceException e) {
+			System.out.println("cause is "+e.getCause().toString());
+			if(e.getCause().toString().contains("ConstraintViolationException"))
+			{
+				System.out.println("cause is new");
+			  throw new DBException("Video name mustbbb be unique",e);
+			}
+		} 
+		catch(DBException e) {
+			throw new DBException("Video name must be unique",e);
 		}
 		return video;
 	}
@@ -141,7 +155,7 @@ public class VideoServiceImpl implements IVideoService {
 			videodao.updateVideo(video);
 		} 
 		catch (DBException e) {
-			throw new ServiceException("Unable to update records for video", e);
+			throw new ServiceException("Unable to update records for video");
 		}
 		return video;
 	}

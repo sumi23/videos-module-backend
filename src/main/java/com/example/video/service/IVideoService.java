@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
+import com.example.video.exception.DBException;
 import com.example.video.exception.ServiceException;
 import com.example.video.model.Category;
 import com.example.video.model.Level;
@@ -16,7 +17,7 @@ public interface IVideoService {
 
 	List<Video> getVideoById(int videoId) throws ServiceException;
 
-	Video addVideo(Video video) throws ServiceException;
+	Video addVideo(Video video) throws ServiceException, DBException;
 
 	List<Video> deleteVideoById(int videoId) throws ServiceException;
 

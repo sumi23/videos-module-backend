@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.video.constants.RESTUriConstant;
+import com.example.video.exception.DBException;
 import com.example.video.exception.ServiceException;
 import com.example.video.model.Category;
 import com.example.video.model.Level;
@@ -40,7 +42,6 @@ import com.example.video.util.HTTPStatusResponse;
 import com.example.video.util.ResponseUtils;
 
 @RestController
-@ControllerAdvice 
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("video")
 public class  VideoController
@@ -141,13 +142,31 @@ public class  VideoController
 			}
 			
 		}
-	
-	
 	@PostMapping(value="/add",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
-	public 	ResponseEntity<HTTPStatusResponse> doaddVideos(@RequestBody Video video)throws Exception
+	public 	ResponseEntity<?> doaddVideos(@RequestBody Video video)throws Exception
 	{
-		videoService.addVideo(video);	
-		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_INSERT_SUCCESS,video);
+//		videoService.addVideo(video);	
+//		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_INSERT_SUCCESS,video);
+		String errorResult = null;
+		Video videos=null;
+		try {
+			
+			videos =videoService.addVideo(video);
+		} 
+		catch (DBException e) {
+			throw new DBException("Video already exists",e);
+			//errorResult = e.getMessage();
+		}
+		catch (ServiceException e) {
+			throw new ServiceException("Error in adding video records",e);
+			//errorResult = e.getMessage();
+		}
+		if (videos!= null) {
+			 return new ResponseEntity<>(videos, HttpStatus.OK);
+		} else {
+
+			return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
+		}
 		}
 	@PutMapping(value="/edit",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
 	public 	ResponseEntity<HTTPStatusResponse> doEditVideos(@RequestBody Video video) throws Exception
