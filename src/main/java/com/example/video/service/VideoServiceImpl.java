@@ -57,7 +57,7 @@ public class VideoServiceImpl implements IVideoService {
 			 System.out.print("service started");
 			 levels = videodao.getAllLevels();
 		} catch (Exception e) {
-			throw new ServiceException("Unable to fetch records for video", e);
+			throw new ServiceException("Unable to fetch levels", e);
 		}
 		return levels;
 	}	
@@ -68,7 +68,7 @@ public class VideoServiceImpl implements IVideoService {
 			 System.out.print("service started");
 			 levels = videodao.getAllCategories();
 		} catch (Exception e) {
-			throw new ServiceException("Unable to fetch records for video", e);
+			throw new ServiceException("Unable to fetch categories", e);
 		}
 		return levels;
 	}
@@ -79,6 +79,10 @@ public class VideoServiceImpl implements IVideoService {
 		List<Video> video;
 		try {
 			video=(List<Video>)videodao.getVideoById(videoId);
+			if(video==null)
+			{
+				throw new ServiceException("No video records found");
+			}
 		}
 		catch (DBException e) {
 		throw new ServiceException("Unable to fetch records for video", e);
@@ -90,7 +94,11 @@ public class VideoServiceImpl implements IVideoService {
 		List<Video> videos;
 		try {
 			videos = (List<Video>) videodao.getActivatedVideos();
-		} catch (Exception e) {
+			if(videos==null)
+			{
+				throw new ServiceException("No video records found");
+			}
+		} catch (DBException e) {
 			throw new ServiceException("Unable to fetch activated video records", e);
 		}
 		return videos;
@@ -100,7 +108,11 @@ public class VideoServiceImpl implements IVideoService {
 		List<Video> videos;
 		try {
 			videos = (List<Video>) videodao.getDeactivatedVideos();
-		} catch (Exception e) {
+			if(videos==null)
+			{
+				throw new ServiceException("No video records found");
+			}
+		} catch (DBException e) {
 			throw new ServiceException("Unable to fetch deactivated video records", e);
 		}
 		return videos;
@@ -121,7 +133,12 @@ public class VideoServiceImpl implements IVideoService {
 	{
 		List<Video> video;
 		try {
+			
 			video=(List<Video>)videodao.deleteVideoById(videoId);
+			if(video==null)
+			{
+				throw new ServiceException("No video records found");
+			}
 		}
 		catch (DBException e) {
 			throw new ServiceException("Unable to delete records for video");
@@ -131,21 +148,14 @@ public class VideoServiceImpl implements IVideoService {
 	@Override
 	public Video addVideo(Video video) throws ServiceException{
 		try {
-			videodao.addVideo(video);
-		} 
-//		catch (DBException e) {
-//			throw new  DBException("name and url must be unique",e);
-//		}
-		catch (PersistenceException e) {
-			System.out.println("cause is "+e.getCause().toString());
-			if(e.getCause().toString().contains("ConstraintViolationException"))
+			Video videos=videodao.addVideo(video);
+			if(videos==null)
 			{
-				System.out.println("cause is new");
-			  throw new DBException("Video name mustbbb be unique",e);
+				throw new ServiceException("Unable to add video records");
 			}
 		} 
 		catch(DBException e) {
-			throw new DBException("Video name must be unique",e);
+			throw new ServiceException("Video already exists");
 		}
 		return video;
 	}

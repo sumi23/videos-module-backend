@@ -70,7 +70,9 @@ public class  VideoController
 		} catch (ServiceException e) {
 			throw new ServiceException("Error in fetching video records", e);
 		}
+		
 		return videos;	
+		
 	}
 	
 	@GetMapping(value="/listCategories")
@@ -147,38 +149,44 @@ public class  VideoController
 	{
 //		videoService.addVideo(video);	
 //		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_INSERT_SUCCESS,video);
-		String errorResult = null;
+		
 		Video videos=null;
 		try {
 			
 			videos =videoService.addVideo(video);
 		} 
 		catch (DBException e) {
-			throw new DBException("Video already exists",e);
-			//errorResult = e.getMessage();
+			throw new ServiceException("Video already exists",e);
+			
 		}
 		catch (ServiceException e) {
 			throw new ServiceException("Error in adding video records",e);
-			//errorResult = e.getMessage();
+			
 		}
-		if (videos!= null) {
+		
 			 return new ResponseEntity<>(videos, HttpStatus.OK);
-		} else {
-
-			return new ResponseEntity<>(errorResult, HttpStatus.BAD_REQUEST);
-		}
+	
 		}
 	@PutMapping(value="/edit",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
-	public 	ResponseEntity<HTTPStatusResponse> doEditVideos(@RequestBody Video video) throws Exception
+	public 	ResponseEntity<?> doEditVideos(@RequestBody Video video) throws Exception
 	{
 		
+         try {
+			
 		videoService.updateVideo(video);
-		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_UPDATE_SUCCESS,video);
+		} 
+		
+		catch (ServiceException e) {
+			throw new ServiceException("Error in updating video records",e);
+			
+		}
+		
+			 return new ResponseEntity<>(video, HttpStatus.OK);
 		
 	}
 	//produces = MediaType.MULTIPART_FORM_DATA_VALUE
 	@PostMapping(value="/upload",headers = "Content-Type= multipart/form-data",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity uploadToLocalFileSystem(@RequestParam("file") MultipartFile file) throws IOException {
+	public ResponseEntity uploadToLocalFileSystem(@RequestParam("file") MultipartFile file) throws IOException,ServiceException {
 		
 		 
 		try {
@@ -192,7 +200,7 @@ public class  VideoController
 		stream.flush();  
 		stream.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new  ServiceException("Error in uploading files");
 		}	
 		return ResponseEntity.ok("File uploaded");
 	}

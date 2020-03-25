@@ -507,12 +507,11 @@ public class VideoDAOImpl implements IVideoDAO {
 			}
 			transaction.commit();
 		} catch (PersistenceException e) {
-			System.out.println("cause is "+e.getCause().toString());
 			if(e.getCause().toString().contains("ConstraintViolationException"))
 			{
-				System.out.println("cause is");
 			  throw new DBException("Video already exists",e);
 			}
+			throw new DBException("Unable to insert video records",e);
 		} 
 		
 		finally {
@@ -691,7 +690,7 @@ public class VideoDAOImpl implements IVideoDAO {
             
 			transaction.commit();
 		} catch (Exception e) {
-			throw new DBException("name and url must be unique");
+			throw new DBException("Unable to update video records",e);
 		} finally {
 			session.close();
 		}
