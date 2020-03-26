@@ -34,4 +34,14 @@ public class Level {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public Level(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+
+	public Level() {
+		super();
+	}
 }

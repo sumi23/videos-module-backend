@@ -511,8 +511,12 @@ public class VideoDAOImpl implements IVideoDAO {
 			{
 			  throw new DBException("Video already exists",e);
 			}
-			throw new DBException("Unable to insert video records",e);
+			
 		} 
+		catch(IllegalArgumentException e)
+		{
+			throw new DBException("Unable to insert video records",e);
+		}
 		
 		finally {
 			session.close();

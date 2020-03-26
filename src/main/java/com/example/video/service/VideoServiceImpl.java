@@ -79,7 +79,7 @@ public class VideoServiceImpl implements IVideoService {
 		List<Video> video;
 		try {
 			video=(List<Video>)videodao.getVideoById(videoId);
-			if(video==null)
+			if(video.isEmpty())
 			{
 				throw new ServiceException("No video records found");
 			}
@@ -135,10 +135,10 @@ public class VideoServiceImpl implements IVideoService {
 		try {
 			
 			video=(List<Video>)videodao.deleteVideoById(videoId);
-			if(video==null)
-			{
-				throw new ServiceException("No video records found");
-			}
+//			if(video.isEmpty())
+//			{
+//				throw new ServiceException("No video records found");
+//			}
 		}
 		catch (DBException e) {
 			throw new ServiceException("Unable to delete records for video");
