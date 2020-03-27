@@ -32,7 +32,7 @@ public class Video {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	int id;
-	@Column(name = "name", nullable = false,  length = 50)
+	@Column(name = "name", nullable = false, length = 50)
 	String name;
 	@Column(name = "display_name", nullable = false, length = 50)
 	String displayName;
@@ -44,7 +44,7 @@ public class Video {
 	String tags;
 	@Column(name = "status")
 	Boolean status;
-	@Column(name = "description",columnDefinition="text")
+	@Column(name = "description", columnDefinition = "text")
 	String description;
 	@Column(name = "transcript", length = 50)
 	private String transcript;
@@ -224,6 +224,35 @@ public class Video {
 	}
 
 	public void setReferenceUrl(List<ReferenceUrl> referenceUrl) {
+		this.referenceUrl = referenceUrl;
+	}
+
+	public Video() {
+		super();
+	}
+
+	public Video(int id, String name, String displayName, String url, Time duration, String tags, Boolean status,
+			String description, String transcript, String createdBy, Timestamp createdOn, String modifiedBy,
+			Timestamp modifiedOn, Level level, Category category, List<ReferenceArtifact> referenceArtifact,
+			List<SampleProgram> sampleProgram, List<ReferenceUrl> referenceUrl) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.displayName = displayName;
+		this.url = url;
+		this.duration = duration;
+		this.tags = tags;
+		this.status = status;
+		this.description = description;
+		this.transcript = transcript;
+		this.createdBy = createdBy;
+		this.createdOn = createdOn;
+		this.modifiedBy = modifiedBy;
+		this.modifiedOn = modifiedOn;
+		this.level = level;
+		this.category = category;
+		this.referenceArtifact = referenceArtifact;
+		this.sampleProgram = sampleProgram;
 		this.referenceUrl = referenceUrl;
 	}
 

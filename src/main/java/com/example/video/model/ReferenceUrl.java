@@ -76,5 +76,17 @@ public class ReferenceUrl {
 		this.video = video;
 	}
 
+	public ReferenceUrl() {
+		super();
+	}
+
+	public ReferenceUrl(int id, String name, String url, String description) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.url = url;
+		this.description = description;
+	}
+
 	
 }

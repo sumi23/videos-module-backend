@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -99,24 +100,26 @@ public class VideoDAOImpl implements IVideoDAO {
 	
 
 	@Override
-	public List<Video> getVideoById(int videoId) throws DBException {
+	public Video getVideoById(int videoId) throws DBException {
 		Session session = null;
 		Transaction t = null;
-		List<Video> video = null;
+	     List<Video> videoList;
+	     Video v;
 		try {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
-			String hql = "FROM Video video where video.id=:videoId";
-			TypedQuery<Video> query = session.createQuery(hql);
-			query.setParameter("videoId", videoId);
-			video = query.getResultList();
+//			String hql = "FROM Video video where video.id=:videoId";
+//			Query<Video> query = session.createQuery(hql, Video.class);
+//			query.setParameter("videoId", videoId);
+//			videoList = query.getResultList();
+			v=session.get(Video.class, videoId);
 			t.commit();
 		} catch (Exception e) {
 			throw new DBException("Error in fetching records");
 		} finally {
 			session.close();
 		}
-		return video;
+		return v;
 	}
 
 	@Override
@@ -156,16 +159,28 @@ public class VideoDAOImpl implements IVideoDAO {
 			String hql = "Select v.status from Video v where v.id=:id";
 			TypedQuery<Video> query = session.createQuery(hql);
 			query.setParameter("id",videoId);
-		    List stat=query.getResultList();
-			if(stat.get(0).equals(true))
+//		    List stat=query.getResultList();
+//			if(stat.get(0).equals(true))
+//			{
+//				stat.add(0,false);
+//			}
+//			else
+//			{
+//				stat.add(0,true);
+//			}
+//			Boolean new1=(Boolean) stat.get(0);
+			video=session.get(Video.class, videoId);
+			Boolean new1=video.getStatus();
+			if(new1==true)
 			{
-				stat.add(0,false);
+				new1=false;
 			}
 			else
 			{
-				stat.add(0,true);
+				new1=true;
 			}
-			Boolean new1=(Boolean) stat.get(0);
+				
+			System.out.println("status is"+new1);
 			String hql1 = "update Video v  set v.status=:val where v.id=:id";
 			TypedQuery<Video> query1 = session.createQuery(hql1);
 			query1.setParameter("val",new1);
@@ -325,7 +340,7 @@ public class VideoDAOImpl implements IVideoDAO {
 	
 	
 	@Override
-	public Video addVideo(Video video) throws DBException {
+	public void addVideo(Video video) throws DBException {
 		String file,fileName,refArtFile,refArtFileName,samProgFile,samProgFileName;
 		Session session = null;
 		Transaction transaction = null;
@@ -521,11 +536,11 @@ public class VideoDAOImpl implements IVideoDAO {
 		finally {
 			session.close();
 		}
-		return video;
+		
 	}
 	
 	@Override
-	public Video updateVideo(Video video) throws DBException {
+	public void updateVideo(Video video) throws DBException {
 		Session session = null;
 		Transaction transaction = null;
 	    Video v;
@@ -698,7 +713,7 @@ public class VideoDAOImpl implements IVideoDAO {
 		} finally {
 			session.close();
 		}
-		return video;
+		
 	}
 	
 	@Override

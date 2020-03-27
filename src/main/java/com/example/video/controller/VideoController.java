@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -108,11 +111,11 @@ public class  VideoController
 		return videos;	
 	}
 	@GetMapping(value="/listById/{videoId}")
-   public List<Video> doGetVideoById(@PathVariable int videoId) throws Exception{
+   public Video doGetVideoById(@PathVariable int videoId) throws Exception{
 		
-		List<Video> video;
+		Video video;
 		try {
-			video=(List<Video>)videoService.getVideoById(videoId);
+			video=videoService.getVideoById(videoId);
 		}
 		catch (ServiceException e) {
 			throw new ServiceException("Error in fetching video records");
@@ -150,10 +153,10 @@ public class  VideoController
 //		videoService.addVideo(video);	
 //		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_INSERT_SUCCESS,video);
 		
-		Video videos=null;
+		
 		try {
 			
-			videos =videoService.addVideo(video);
+			videoService.addVideo(video);
 		} 
 		catch (DBException e) {
 			throw new ServiceException("Video already exists",e);
@@ -164,7 +167,7 @@ public class  VideoController
 			
 		}
 		
-			 return new ResponseEntity<>(videos, HttpStatus.OK);
+			 return new ResponseEntity<>(video, HttpStatus.OK);
 	
 		}
 	@PutMapping(value="/edit",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
@@ -207,15 +210,20 @@ public class  VideoController
 	@GetMapping(value="/download/{fileName:.+}",produces="text/plain")
 	public ResponseEntity<String> doDownloadFileFromLocal(@PathVariable String fileName) throws Exception
 		{
-		 ResponseEntity<String> response;
+		 String response;
+		 String contentType="text/plain";
 			try {
-			 response=videoService.downloadFileFromLocal(fileName);
+			response=videoService.downloadFileFromLocal(fileName);
+			    
+			} 
+			catch (Exception e) {
+				throw new ServiceException("Unable to download files for video", e);
 			}
-			catch(ServiceException e)
-			{
-				throw new ServiceException("Error in downloading files",e);
-			}
-			return response;
+			return ResponseEntity.ok()
+					.contentType(MediaType.parseMediaType(contentType))
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+					.body(response);
+			//return encodedString;
 	}
 		
 }	

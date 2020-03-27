@@ -77,4 +77,16 @@ public class SampleProgram {
 		this.video = video;
 	}
 
+	public SampleProgram() {
+		super();
+	}
+
+	public SampleProgram(int id, String name, String file, String description) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.file = file;
+		this.description = description;
+	}
+
 }

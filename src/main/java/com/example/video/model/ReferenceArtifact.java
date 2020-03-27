@@ -78,5 +78,16 @@ public class ReferenceArtifact {
 		this.video = video;
 	}
 
-	
+	public ReferenceArtifact() {
+		super();
+	}
+
+	public ReferenceArtifact(int id, String name, String file, String description) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.file = file;
+		this.description = description;
+	}
+
 }

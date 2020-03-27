@@ -15,9 +15,9 @@ public interface IVideoService {
 	
 	List<Video> getAllVideos() throws ServiceException;
 
-	List<Video> getVideoById(int videoId) throws ServiceException;
+	Video getVideoById(int videoId) throws ServiceException;
 
-	Video addVideo(Video video) throws ServiceException, DBException;
+	void addVideo(Video video) throws ServiceException, DBException;
 
 	List<Video> deleteVideoById(int videoId) throws ServiceException;
 
@@ -25,9 +25,9 @@ public interface IVideoService {
 
 	List<Video> getDeactivatedVideos() throws ServiceException;
 
-	Video updateVideo(Video video) throws ServiceException;
+	void updateVideo(Video video) throws ServiceException;
 
-	ResponseEntity<String> downloadFileFromLocal(String fileName) throws ServiceException;
+	String downloadFileFromLocal(String fileName) throws ServiceException;
 
 	void toggleStatus(int videoId) throws ServiceException;
 

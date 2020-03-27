@@ -35,13 +35,14 @@ public class Level {
 		this.name = name;
 	}
 
+	public Level() {
+		super();
+	}
+
 	public Level(int id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
 	}
 
-	public Level() {
-		super();
-	}
 }

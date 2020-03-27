@@ -1,6 +1,7 @@
 package com.example.video.service;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -74,15 +75,15 @@ public class VideoServiceImpl implements IVideoService {
 	}
 	
 	@Override
-	public List<Video> getVideoById(int videoId) throws ServiceException
+	public Video getVideoById(int videoId) throws ServiceException
 	{
-		List<Video> video;
+	    Video video;
 		try {
-			video=(List<Video>)videodao.getVideoById(videoId);
-			if(video.isEmpty())
-			{
-				throw new ServiceException("No video records found");
-			}
+			video=videodao.getVideoById(videoId);
+//			if(video==null)
+//			{
+//				throw new ServiceException("No video records found");
+//			}
 		}
 		catch (DBException e) {
 		throw new ServiceException("Unable to fetch records for video", e);
@@ -146,31 +147,27 @@ public class VideoServiceImpl implements IVideoService {
 		return video;
 	}
 	@Override
-	public Video addVideo(Video video) throws ServiceException{
+	public void addVideo(Video video) throws ServiceException{
 		try {
-			Video videos=videodao.addVideo(video);
-			if(videos==null)
-			{
-				throw new ServiceException("Unable to add video records");
-			}
+			videodao.addVideo(video);	
 		} 
 		catch(DBException e) {
 			throw new ServiceException("Video already exists");
 		}
-		return video;
+		
 	}
 	@Override
-	public Video updateVideo(Video video) throws ServiceException{
+	public void updateVideo(Video video) throws ServiceException{
 		try {
 			videodao.updateVideo(video);
 		} 
 		catch (DBException e) {
 			throw new ServiceException("Unable to update records for video");
 		}
-		return video;
+		
 	}
 	@Override
-	public ResponseEntity<String> downloadFileFromLocal(String fileName)throws ServiceException {
+	public String downloadFileFromLocal(String fileName)throws ServiceException {
 		String contentType="text/plain";
 		Path path = Paths.get(UPLOAD_DIRECTORY + fileName);
 		System.out.println(path);
@@ -190,17 +187,13 @@ public class VideoServiceImpl implements IVideoService {
 		    Base64.Decoder decoder = Base64.getDecoder();  
 		    byte[] decoded=decoder.decode(encoded);
 		    decodedString=new String(decoded);
-		    
-		} 
-		catch (Exception e) {
-			throw new ServiceException("Unable to download files for video", e);
-		}
-		return ResponseEntity.ok()
-				.contentType(MediaType.parseMediaType(contentType))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-				.body(encodedString);
-		//return encodedString;
-		
+		   
 	}
-
+		catch(IOException e)
+		{
+		       throw new ServiceException("Error in downloading files");	
+		
+		}
+		 return encodedString;
+		}
 }
