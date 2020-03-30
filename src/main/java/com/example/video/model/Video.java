@@ -3,7 +3,7 @@ package com.example.video.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,10 +16,7 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import java.io.File;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
@@ -229,31 +226,6 @@ public class Video {
 
 	public Video() {
 		super();
-	}
-
-	public Video(int id, String name, String displayName, String url, Time duration, String tags, Boolean status,
-			String description, String transcript, String createdBy, Timestamp createdOn, String modifiedBy,
-			Timestamp modifiedOn, Level level, Category category, List<ReferenceArtifact> referenceArtifact,
-			List<SampleProgram> sampleProgram, List<ReferenceUrl> referenceUrl) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.displayName = displayName;
-		this.url = url;
-		this.duration = duration;
-		this.tags = tags;
-		this.status = status;
-		this.description = description;
-		this.transcript = transcript;
-		this.createdBy = createdBy;
-		this.createdOn = createdOn;
-		this.modifiedBy = modifiedBy;
-		this.modifiedOn = modifiedOn;
-		this.level = level;
-		this.category = category;
-		this.referenceArtifact = referenceArtifact;
-		this.sampleProgram = sampleProgram;
-		this.referenceUrl = referenceUrl;
 	}
 
 }

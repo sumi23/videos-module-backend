@@ -1,6 +1,4 @@
 package com.example.video.dao;
-
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.io.File;
 import java.math.BigInteger;
@@ -32,11 +30,12 @@ public class VideoDAOImpl implements IVideoDAO {
 
 	 private  static final String UPLOAD_DIRECTORY ="E:\\videomodule\\files";
 	
-	@Override
-	public List<Video> getAllVideos() throws DBException {
-		Session session = null;
+	 Session session = null;
 		Transaction transaction = null;
 		List<Video> videos = null;
+	@Override
+	public List<Video> getAllVideos() throws DBException {
+		
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
@@ -56,15 +55,13 @@ public class VideoDAOImpl implements IVideoDAO {
 	
 	@Override
 	public List<Level> getAllLevels() throws DBException {
-		Session session = null;
-		Transaction transaction = null;
-		List<Level> videos = null;
+		List<Level> levelList;
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "FROM Level";
 			TypedQuery<Level> query = session.createQuery(hql);
-			videos = query.getResultList();
+			levelList = query.getResultList();
 			transaction.commit();
 		}
 
@@ -73,20 +70,18 @@ public class VideoDAOImpl implements IVideoDAO {
 		} finally {
 			session.close();
 		}
-		return videos;
+		return levelList;
 	}
 	
 	@Override
 	public List<Category> getAllCategories() throws DBException {
-		Session session = null;
-		Transaction transaction = null;
-		List<Category> videos = null;
+		List<Category> categoryList;
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "FROM Category";
-			TypedQuery<Category> query = session.createQuery(hql);
-			videos = query.getResultList();
+			TypedQuery<Category> query = session.createQuery(hql,Category.class);
+			categoryList = query.getResultList();
 			transaction.commit();
 		}
 
@@ -95,45 +90,35 @@ public class VideoDAOImpl implements IVideoDAO {
 		} finally {
 			session.close();
 		}
-		return videos;
+		return categoryList;
 	}
 	
 
 	@Override
 	public Video getVideoById(int videoId) throws DBException {
-		Session session = null;
-		Transaction t = null;
-	     List<Video> videoList;
-	     Video v;
+	     Video video;
 		try {
 			session = sessionFactory.getCurrentSession();
-			t = session.beginTransaction();
-//			String hql = "FROM Video video where video.id=:videoId";
-//			Query<Video> query = session.createQuery(hql, Video.class);
-//			query.setParameter("videoId", videoId);
-//			videoList = query.getResultList();
-			v=session.get(Video.class, videoId);
-			t.commit();
+			transaction = session.beginTransaction();
+			video=session.get(Video.class, videoId);
+			transaction.commit();
 		} catch (Exception e) {
 			throw new DBException("Error in fetching records");
 		} finally {
 			session.close();
 		}
-		return v;
+		return video;
 	}
 
 	@Override
 	public List<Video> getActivatedVideos() throws DBException {
-		Session session = null;
-		Transaction transaction = null;
-		List<Video> videos = null;
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "Select v.name,v.displayName,v.url,"
 					+ "v.duration,v.status "
 					+ "from Video v where v.status=true";
-			TypedQuery<Video> query = session.createQuery(hql);
+			TypedQuery<Video> query = session.createQuery(hql,Video.class);
 			videos = query.getResultList();
 			transaction.commit();
 		}
@@ -148,8 +133,6 @@ public class VideoDAOImpl implements IVideoDAO {
 
 	@Override
 	public void toggleStatus(int videoId) throws DBException{
-		Session session = null;
-		Transaction transaction = null;
 		Video video=null;
 		Boolean status1;
 		try
@@ -199,16 +182,13 @@ public class VideoDAOImpl implements IVideoDAO {
 	
 	@Override
 	public List<Video> getDeactivatedVideos() throws DBException {
-		Session session = null;
-		Transaction transaction = null;
-		List<Video> videos = null;
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "Select v.name,v.displayName,v.url,"
 					+ "v.duration,v.status "
 					+ "from Video v where v.status=false";
-			TypedQuery<Video> query = session.createQuery(hql);
+			TypedQuery<Video> query = session.createQuery(hql,Video.class);
 			videos = query.getResultList();
 			transaction.commit();
 		}
@@ -222,14 +202,10 @@ public class VideoDAOImpl implements IVideoDAO {
 	}
 
 	@Override
-	public List<Video> deleteVideoById(int videoId) throws DBException {
-		Session session = null;
-		//Video v;
-		Transaction t = null;
-		List<Video> video = null;
+	public void deleteVideoById(int videoId) throws DBException {
 		try {
 			session = sessionFactory.getCurrentSession();
-			t = session.beginTransaction();
+			transaction = session.beginTransaction();
 			/*
 			 * String hql = "delete from Video video where video.id=:videoId";
 			 * TypedQuery<Video> query = session.createQuery(hql);
@@ -239,7 +215,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			 */
 			session.delete(session.get(Video.class, videoId));
 			System.out.println("Deleted Records Successfully");
-			t.commit();
+			transaction.commit();
 		}
 
 		catch (Exception e) {
@@ -247,20 +223,20 @@ public class VideoDAOImpl implements IVideoDAO {
 		} finally {
 			session.close();
 		}
-		return video;
+		
 	}
 
 	@Override
-	public List<Video> deleteReferenceArtifactById(int Id) throws DBException {
+	public List<Video> deleteReferenceArtifactById(int id) throws DBException {
 		Session session = null;
 		Transaction t = null;
 		List<Video> video = null;
 		try {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
-			String hql = "delete from reference_artifacts where id=:Id";
+			String hql = "delete from reference_artifacts where id=:id";
 			TypedQuery<Video> query = session.createQuery(hql);
-			query.setParameter("Id", Id);
+			query.setParameter("id", id);
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
 				System.out.println(update + " row affected");
@@ -317,7 +293,7 @@ public class VideoDAOImpl implements IVideoDAO {
 		try {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
-			String hql = "delete from reference_urls where id=:Id";
+			String hql = "delete from ReferenceUrl r where r.id=:Id";
 			TypedQuery<Video> query = session.createQuery(hql);
 			query.setParameter("Id", Id);
 			int update = query.executeUpdate();

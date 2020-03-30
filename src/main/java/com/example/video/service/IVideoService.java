@@ -19,7 +19,7 @@ public interface IVideoService {
 
 	void addVideo(Video video) throws ServiceException, DBException;
 
-	List<Video> deleteVideoById(int videoId) throws ServiceException;
+	void deleteVideoById(int videoId) throws ServiceException;
 
 	List<Video> getActivatedVideos() throws ServiceException;
 
@@ -34,4 +34,6 @@ public interface IVideoService {
 	List<Level> getAllLevels() throws ServiceException;
 
 	List<Category> getAllCategories() throws ServiceException;
+
+	void deleteReferenceUrlById(int videoId) throws ServiceException;
 }

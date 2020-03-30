@@ -43,7 +43,6 @@ public class VideoServiceImpl implements IVideoService {
 	public List<Video> getAllVideos() throws ServiceException {
 		List<Video> videos;
 		try {
-			 System.out.print("service started");
 			videos = videodao.getAllVideos();
 		} catch (Exception e) {
 			throw new ServiceException("Unable to fetch records for video", e);
@@ -55,7 +54,6 @@ public class VideoServiceImpl implements IVideoService {
 	public List<Level> getAllLevels() throws ServiceException {
 		List<Level> levels;
 		try {
-			 System.out.print("service started");
 			 levels = videodao.getAllLevels();
 		} catch (Exception e) {
 			throw new ServiceException("Unable to fetch levels", e);
@@ -66,7 +64,6 @@ public class VideoServiceImpl implements IVideoService {
 	public List<Category> getAllCategories() throws ServiceException {
 		List<Category> levels;
 		try {
-			 System.out.print("service started");
 			 levels = videodao.getAllCategories();
 		} catch (Exception e) {
 			throw new ServiceException("Unable to fetch categories", e);
@@ -130,12 +127,12 @@ public class VideoServiceImpl implements IVideoService {
 		}
 	}
 	@Override
-	public List<Video> deleteVideoById(int videoId) throws ServiceException
+	public void deleteVideoById(int videoId) throws ServiceException
 	{
 		List<Video> video;
 		try {
 			
-			video=(List<Video>)videodao.deleteVideoById(videoId);
+			videodao.deleteVideoById(videoId);
 //			if(video.isEmpty())
 //			{
 //				throw new ServiceException("No video records found");
@@ -144,7 +141,19 @@ public class VideoServiceImpl implements IVideoService {
 		catch (DBException e) {
 			throw new ServiceException("Unable to delete records for video");
 		}
-		return video;
+		
+	}
+	@Override
+	public void deleteReferenceUrlById(int videoId) throws ServiceException
+	{
+		
+		try {	
+			videodao.deleteReferenceUrlById(videoId);
+		}
+		catch (DBException e) {
+			throw new ServiceException("Unable to delete reference url records for video");
+		}
+		
 	}
 	@Override
 	public void addVideo(Video video) throws ServiceException{

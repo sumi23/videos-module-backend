@@ -160,22 +160,26 @@ class VideoServiceImplTest {
 		assertNotNull(videoArg);
 	}
 
-	@Test
-	void testDownloadFileFromLocal() throws ServiceException {
-		// fail("Not yet implemented");
-		
-	}
+//	@Test
+//	void testDownloadFileFromLocal() throws ServiceException {
+//		// fail("Not yet implemented");
+//		
+//	}
 
 	public List<Level> getLevelList() {
 
-		Level level = new Level(1, "level 1");
+		Level level = new Level();
+		level.setId(1);
+		level.setName("level 1");
 		levelList.add(level);
 		return levelList;
 	}
 
 	public List<Category> getCategoryList() {
 
-		Category category = new Category(1, "java");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
 		categoryList.add(category);
 		return categoryList;
 	}
@@ -205,8 +209,12 @@ class VideoServiceImplTest {
 		samProgList.add(sampleProgram1);
 		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
 		refUrlList.add(referenceUrl1);
-		Level level = new Level(1, "level 1");
-		Category category = new Category(1, "java");
+		Level level = new Level();
+		level.setId(1);
+		level.setName("Level 1");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
 		video.setId(1);
 		video.setName("java");
 		video.setDisplayName("java");

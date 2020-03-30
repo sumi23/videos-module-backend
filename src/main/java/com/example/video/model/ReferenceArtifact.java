@@ -10,8 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -82,12 +80,5 @@ public class ReferenceArtifact {
 		super();
 	}
 
-	public ReferenceArtifact(int id, String name, String file, String description) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.file = file;
-		this.description = description;
-	}
 
 }

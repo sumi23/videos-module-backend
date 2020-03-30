@@ -123,16 +123,28 @@ public class  VideoController
 		return video;
 	}
 	@DeleteMapping(value="/deleteById/{videoId}")
-	   public List<Video> doDeleteVideoById(@PathVariable int videoId) throws Exception{
+	   public void doDeleteVideoById(@PathVariable int videoId) throws Exception{
 			
-			List<Video> video;
+		
 			try {
-				video=(List<Video>)videoService.deleteVideoById(videoId);
+				videoService.deleteVideoById(videoId);
 			}
 			catch (ServiceException e) {
 				throw new ServiceException("Error in deleting video records",e);
 			}
-			return video;
+			
+		}
+	@DeleteMapping(value="/deleteReferenceUrlById/{videoId}")
+	   public void doDeleteReferenceUrlById(@PathVariable int videoId) throws Exception{
+			
+			
+			try {
+				videoService.deleteReferenceUrlById(videoId);
+			}
+			catch (ServiceException e) {
+				throw new ServiceException("Error in deleting video records",e);
+			}
+			
 		}
 	
 	@GetMapping(value="/toggleStatus/{videoId}")
