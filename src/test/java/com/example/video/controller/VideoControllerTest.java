@@ -1,40 +1,95 @@
 package com.example.video.controller;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.Serializable;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.assertj.core.util.Arrays;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
+import org.junit.runner.RunWith;
 import com.example.video.dao.VideoDAOImpl;
+import com.example.video.exception.ServiceException;
+import com.example.video.model.Category;
 import com.example.video.model.Level;
+import com.example.video.model.ReferenceArtifact;
+import com.example.video.model.ReferenceUrl;
+import com.example.video.model.SampleProgram;
+import com.example.video.model.Video;
 import com.example.video.service.VideoServiceImpl;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-class VideoControllerTest {
+
+class VideoControllerTest  {
 	
-	@InjectMocks
-	VideoController controller;
 
+	private MockMvc mockMvc;
+
+	@InjectMocks
+	VideoController videoController;
+	
 	@Mock
-	VideoDAOImpl videodao;
+	VideoServiceImpl videoService;
 
 	@Spy
 	List<Level> levelList = new ArrayList<Level>();
 
+	@Spy
+	List<Category> categoryList = new ArrayList<Category>();
+
+	
+	List<Video> videoList=new ArrayList<Video>();
+
+	
+	Video video = new Video();
+	
+	private ObjectMapper objectmapper;
+	
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
+		mockMvc = MockMvcBuilders
+                .standaloneSetup(videoController)
+                .build();
 		levelList = getLevelList();
-	
+		categoryList = getCategoryList();
+		videoList=getVideoList();
+		video = getVideo();
+		objectmapper=new ObjectMapper();
        
 	}
 	public List<Level> getLevelList() {
@@ -48,75 +103,339 @@ class VideoControllerTest {
 
 
 	@Test
-	void testDoGetAllVideos() {
-		
-		
-		fail("Not yet implemented");
+	void testDoGetAllVideos() throws Exception {
+		List<Video> videoList=new ArrayList<Video>();
+		Video video=new Video();
+		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
+		referenceArtifact1.setId(1);
+		referenceArtifact1.setName("reference artifact example");
+		referenceArtifact1.setFile("java.txt");
+		referenceArtifact1.setDescription("This is a reference artifact");
+		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
+		SampleProgram sampleProgram1 = new SampleProgram();
+		sampleProgram1.setId(1);
+		sampleProgram1.setName("sample program example");
+		sampleProgram1.setFile("sample.txt");
+		sampleProgram1.setDescription("This is a sample program");
+		SampleProgram sampleProgram2 = new SampleProgram();
+		ReferenceUrl referenceUrl1 = new ReferenceUrl();
+		referenceUrl1.setId(1);
+		referenceUrl1.setName("reference url example");
+		referenceUrl1.setUrl("http://www.javase.com");
+		referenceUrl1.setDescription("This is a reference url");
+		List<ReferenceArtifact> refArtList = new ArrayList<ReferenceArtifact>();
+		refArtList.add(referenceArtifact1);
+		List<SampleProgram> samProgList = new ArrayList<SampleProgram>();
+		samProgList.add(sampleProgram1);
+		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
+		refUrlList.add(referenceUrl1);
+		Level level = new Level();
+		level.setId(1);
+		level.setName("Level 1");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		video.setId(1);
+		video.setName("java");
+		video.setDisplayName("java");
+		video.setUrl("https://www.javase.com");
+		Time time = Time.valueOf("01:20:09");
+		video.setDuration(time);
+		video.setTags("java");
+		video.setCreatedBy("Subhalakshmi");
+		Timestamp createTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setCreatedOn(createTimestamp);
+		video.setModifiedBy("Subhalakshmi");
+		Timestamp modifyTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setModifiedOn(modifyTimestamp);
+		video.setDescription("This is a java video");
+		video.setTranscript("file.txt");
+		video.setStatus(true);
+		video.setLevel(level);
+		video.setCategory(category);
+		video.setReferenceArtifact(refArtList);
+		video.setSampleProgram(samProgList);
+		video.setReferenceUrl(refUrlList);
+		videoList.add(video);
+	    when(videoService.getAllVideos()).thenReturn(videoList);
+		this.mockMvc.perform(get("/list")).andExpect(status().isOk());
 	}
 
 	@Test
 	void testDoGetAllLevels() throws Exception {
 		
-		when(videodao.getAllLevels()).thenReturn(levelList);
-		assertNotNull(levelList);
-		assertEquals(controller.doGetAllLevels(), getLevelList());
-		verify(videodao, times(1)).getAllLevels();
+		when(videoService.getAllLevels()).thenReturn(levelList);
+		 MvcResult mvcResult=this.mockMvc.perform(get("/listLevels")).andExpect(status().isOk())
+		.andDo(print())
+		.andReturn();
+//		 String s=mvcResult.getResponse().getContentAsString();
+//		 System.out.print("string is "+s);
+//		 assertEquals(200,mvcResult.getResponse().getStatus());
+	}
+
+	@Test
+	void testDoGetAllCategories() throws Exception {
+		when(videoService.getAllCategories()).thenReturn(categoryList);
+		this.mockMvc.perform(get("/listCategories")).andExpect(status().isOk())
+		.andExpect(jsonPath("$.data[0].id", is(1)))
+		.andExpect(jsonPath("$.data[0].name", is("java")))
+		.andReturn();
+	}
+
+	@Test
+	void testDoGetActivatedVideos() throws ServiceException,Exception {
+        when(videoService.getActivatedVideos()).thenReturn(videoList);
+		this.mockMvc.perform(get("/listActive")).andExpect(status().isOk());
+	}
+
+	@Test
+	void testDoGetDeactivatedVideos() throws Exception {
+		when(videoService.getDeactivatedVideos()).thenReturn(videoList);
+		this.mockMvc.perform(get("/listDeactive")).andExpect(status().isOk());
+	}
+
+	@Test
+	void testDoGetVideoById() throws Exception {
+		int id=1;
+		when(videoService.getVideoById(id)).thenReturn(video);
+		this.mockMvc.perform(get("/listById/{id}",1)).andExpect(status().isOk()).andDo(print());
+		verify(videoService, times(1)).getVideoById(id);
+	}
+
+	@Test
+	void testDoDeleteVideoById() throws Exception {
+		int id=1;
+		doNothing().when(videoService).deleteVideoById(id);
+		this.mockMvc.perform(delete("/deleteById/{id}",1)).andExpect(status().isOk()).andDo(print());
+	}
+
+	@Test
+	void testDoDeleteReferenceUrlById() throws Exception {
+		int id=1;
+		doNothing().when(videoService).deleteReferenceUrlById(id);
+		this.mockMvc.perform(delete("/deleteReferenceUrlById/{id}",1)).andExpect(status().isOk()).andDo(print());
+	}
+
+	@Test
+	void testDoToggleStatus() throws Exception {
+		int id=1;
+		doNothing().when(videoService).toggleStatus(id);
+		this.mockMvc.perform(get("/toggleStatus/{id}",1)).andExpect(status().isOk()).andDo(print());
+	}
+
+	@Test
+	void testDoaddVideos() throws Exception {
+		Video video=new Video();
+		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
+		referenceArtifact1.setId(1);
+		referenceArtifact1.setName("reference artifact example");
+		referenceArtifact1.setFile("java.txt");
+		referenceArtifact1.setDescription("This is a reference artifact");
+		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
+		SampleProgram sampleProgram1 = new SampleProgram();
+		sampleProgram1.setId(1);
+		sampleProgram1.setName("sample program example");
+		sampleProgram1.setFile("sample.txt");
+		sampleProgram1.setDescription("This is a sample program");
+		SampleProgram sampleProgram2 = new SampleProgram();
+		ReferenceUrl referenceUrl1 = new ReferenceUrl();
+		referenceUrl1.setId(1);
+		referenceUrl1.setName("reference url example");
+		referenceUrl1.setUrl("http://www.javase.com");
+		referenceUrl1.setDescription("This is a reference url");
+		List<ReferenceArtifact> refArtList = new ArrayList<ReferenceArtifact>();
+		refArtList.add(referenceArtifact1);
+		List<SampleProgram> samProgList = new ArrayList<SampleProgram>();
+		samProgList.add(sampleProgram1);
+		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
+		refUrlList.add(referenceUrl1);
+		Level level = new Level();
+		level.setId(1);
+		level.setName("Level 1");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		video.setId(1);
+		video.setName("java");
+		video.setDisplayName("java");
+		video.setUrl("https://www.javase.com");
+		Time time = Time.valueOf("01:20:09");
+		video.setDuration(time);
+		video.setTags("java");
+		video.setCreatedBy("Subhalakshmi");
+		Timestamp createTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setCreatedOn(createTimestamp);
+		video.setModifiedBy("Subhalakshmi");
+		Timestamp modifyTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setModifiedOn(modifyTimestamp);
+		video.setDescription("This is a java video");
+		video.setTranscript("file.txt");
+		video.setStatus(true);
+		video.setLevel(level);
+		video.setCategory(category);
+		video.setReferenceArtifact(refArtList);
+		video.setSampleProgram(samProgList);
+		video.setReferenceUrl(refUrlList);
 		
+		doNothing().when(videoService).addVideo(video);
+		String videoJson=objectmapper.writeValueAsString(video);
+		 MvcResult mvcResult=this.mockMvc.perform(post("/add")
+				 .contentType(MediaType.APPLICATION_JSON_VALUE)
+				 .content(videoJson))
+		.andExpect(status().isOk()).andDo(print()).andReturn();
 	}
 
 	@Test
-	void testDoGetAllCategories() {
-		fail("Not yet implemented");
+	void testDoEditVideos() throws Exception {
+		Video video=new Video();
+		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
+		referenceArtifact1.setId(1);
+		referenceArtifact1.setName("reference artifact example");
+		referenceArtifact1.setFile("java.txt");
+		referenceArtifact1.setDescription("This is a reference artifact");
+		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
+		SampleProgram sampleProgram1 = new SampleProgram();
+		sampleProgram1.setId(1);
+		sampleProgram1.setName("sample program example");
+		sampleProgram1.setFile("sample.txt");
+		sampleProgram1.setDescription("This is a sample program");
+		SampleProgram sampleProgram2 = new SampleProgram();
+		ReferenceUrl referenceUrl1 = new ReferenceUrl();
+		referenceUrl1.setId(1);
+		referenceUrl1.setName("reference url example");
+		referenceUrl1.setUrl("http://www.javase.com");
+		referenceUrl1.setDescription("This is a reference url");
+		List<ReferenceArtifact> refArtList = new ArrayList<ReferenceArtifact>();
+		refArtList.add(referenceArtifact1);
+		List<SampleProgram> samProgList = new ArrayList<SampleProgram>();
+		samProgList.add(sampleProgram1);
+		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
+		refUrlList.add(referenceUrl1);
+		Level level = new Level();
+		level.setId(1);
+		level.setName("Level 1");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		video.setId(1);
+		video.setName("java");
+		video.setDisplayName("java");
+		video.setUrl("https://www.javase.com");
+		Time time = Time.valueOf("01:20:09");
+		video.setDuration(time);
+		video.setTags("java");
+		video.setCreatedBy("Subhalakshmi");
+		Timestamp createTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setCreatedOn(createTimestamp);
+		video.setModifiedBy("Subhalakshmi");
+		Timestamp modifyTimestamp = new Timestamp(System.currentTimeMillis());
+		video.setModifiedOn(modifyTimestamp);
+		video.setDescription("This is a java video");
+		video.setTranscript("file.txt");
+		video.setStatus(true);
+		video.setLevel(level);
+		video.setCategory(category);
+		video.setReferenceArtifact(refArtList);
+		video.setSampleProgram(samProgList);
+		video.setReferenceUrl(refUrlList);
+		doNothing().when(videoService).updateVideo(video);
+		String videoJson=objectmapper.writeValueAsString(video);
+		 MvcResult mvcResult=this.mockMvc.perform(put("/edit")
+				 .contentType(MediaType.APPLICATION_JSON_VALUE)
+				 .content(videoJson))
+		.andExpect(status().isOk()).andDo(print()).andReturn();
 	}
 
 	@Test
-	void testDoGetActivatedVideos() {
-		fail("Not yet implemented");
+	void testUploadToLocalFileSystem() throws Exception {
+//		 MockMultipartFile firstFile = new MockMultipartFile("data", "filename.txt", "text/plain", "some xml".getBytes());
+//		this.mockMvc.perform(multipart("/upload").file(firstFile)).andExpect(status().isOk()).andDo(print());
+	
+		 MockMultipartFile firstFile = new MockMultipartFile("file", "filename.txt", MediaType.TEXT_PLAIN_VALUE, "some xml".getBytes());
+		this.mockMvc.perform(multipart("/upload").file(firstFile)).andExpect(status().isOk()).andDo(print());
+	
+	
 	}
 
 	@Test
-	void testDoGetDeactivatedVideos() {
-		fail("Not yet implemented");
+	void testDoDownloadFileFromLocal() throws Exception {
+		String fileName="file.txt";
+		String encodedFileContent="ZmlsZSBjb250ZW50";
+		when(videoService.downloadFileFromLocal(fileName)).thenReturn(encodedFileContent);
+		this.mockMvc.perform(get("/download/{fileName}",fileName)).andExpect(status().isOk())
+		.andExpect(content().contentType(MediaType.TEXT_PLAIN_VALUE))
+		.andDo(print());
+		verify(videoService, times(1)).downloadFileFromLocal(fileName);
 	}
 
-	@Test
-	void testDoGetVideoById() {
-		fail("Not yet implemented");
+	public List<Category> getCategoryList() {
+
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		categoryList.add(category);
+		return categoryList;
 	}
 
-	@Test
-	void testDoDeleteVideoById() {
-		fail("Not yet implemented");
-	}
+	public Video getVideo() {
 
-	@Test
-	void testDoDeleteReferenceUrlById() {
-		fail("Not yet implemented");
-	}
+		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
+		referenceArtifact1.setId(1);
+		referenceArtifact1.setName("reference artifact example");
+		referenceArtifact1.setFile("java.txt");
+		referenceArtifact1.setDescription("This is a reference artifact");
+		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
+		SampleProgram sampleProgram1 = new SampleProgram();
+		sampleProgram1.setId(1);
+		sampleProgram1.setName("sample program example");
+		sampleProgram1.setFile("sample.txt");
+		sampleProgram1.setDescription("This is a sample program");
+		SampleProgram sampleProgram2 = new SampleProgram();
+		ReferenceUrl referenceUrl1 = new ReferenceUrl();
+		referenceUrl1.setId(1);
+		referenceUrl1.setName("reference url example");
+		referenceUrl1.setUrl("http://www.javase.com");
+		referenceUrl1.setDescription("This is a reference url");
+		List<ReferenceArtifact> refArtList = new ArrayList<ReferenceArtifact>();
+		refArtList.add(referenceArtifact1);
+		List<SampleProgram> samProgList = new ArrayList<SampleProgram>();
+		samProgList.add(sampleProgram1);
+		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
+		refUrlList.add(referenceUrl1);
+		Level level = new Level();
+		level.setId(1);
+		level.setName("Level 1");
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		video.setId(1);
+		video.setName("java");
+		video.setDisplayName("java");
+		video.setUrl("https://www.javase.com");
+		Time time = Time.valueOf("01:20:09");
+		video.setDuration(time);
+		video.setTags("java");
+		video.setCreatedBy("Subhalakshmi");
+//		Timestamp createTimestamp = new Timestamp(System.currentTimeMillis());
+//		video.setCreatedOn(createTimestamp);
+		video.setModifiedBy("Subhalakshmi");
+//		Timestamp modifyTimestamp = new Timestamp(System.currentTimeMillis());
+//		video.setModifiedOn(modifyTimestamp);
+		video.setDescription("This is a java video");
+		video.setTranscript("file.txt");
+		video.setStatus(true);
+		video.setLevel(level);
+		video.setCategory(category);
+		video.setReferenceArtifact(refArtList);
+		video.setSampleProgram(samProgList);
+		video.setReferenceUrl(refUrlList);
+		return video;
 
-	@Test
-	void testDoToggleStatus() {
-		fail("Not yet implemented");
 	}
-
-	@Test
-	void testDoaddVideos() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testDoEditVideos() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testUploadToLocalFileSystem() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testDoDownloadFileFromLocal() {
-		fail("Not yet implemented");
+	
+	public List<Video> getVideoList(){
+		videoList.add(video);
+		return videoList;
 	}
 
 }

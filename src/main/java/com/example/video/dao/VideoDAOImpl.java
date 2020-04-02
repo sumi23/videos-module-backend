@@ -28,20 +28,20 @@ public class VideoDAOImpl implements IVideoDAO {
 	@Autowired
 	SessionFactory sessionFactory;
 
-	 private  static final String UPLOAD_DIRECTORY ="E:\\videomodule\\files";
+	 private  static final String UPLOAD_DIRECTORY ="E:\\videomodule\\files\\";
 	
-	 Session session = null;
+	    Session session = null;
 		Transaction transaction = null;
 		List<Video> videos = null;
 	@Override
 	public List<Video> getAllVideos() throws DBException {
-		
+		List<Video> videoList;
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "FROM Video";
-			TypedQuery<Video> query = session.createQuery(hql);
-			videos = query.getResultList();
+			Query<Video> query = session.createQuery(hql,Video.class);
+			videoList = query.getResultList();
 			transaction.commit();
 		}
 
@@ -50,7 +50,7 @@ public class VideoDAOImpl implements IVideoDAO {
 		} finally {
 			session.close();
 		}
-		return videos;
+		return videoList;
 	}
 	
 	@Override
@@ -58,11 +58,11 @@ public class VideoDAOImpl implements IVideoDAO {
 		List<Level> levelList;
 		try {
 			session = sessionFactory.getCurrentSession();
-			transaction = session.beginTransaction();
+		transaction = session.beginTransaction();
 			String hql = "FROM Level";
 			TypedQuery<Level> query = session.createQuery(hql);
 			levelList = query.getResultList();
-			transaction.commit();
+		transaction.commit();
 		}
 
 		catch (Exception e) {
@@ -86,7 +86,7 @@ public class VideoDAOImpl implements IVideoDAO {
 		}
 
 		catch (Exception e) {
-			throw new DBException("Error in fetching level records");
+			throw new DBException("Error in fetching category records");
 		} finally {
 			session.close();
 		}
@@ -314,6 +314,12 @@ public class VideoDAOImpl implements IVideoDAO {
 		return video;
 	}
 	
+	public String getFilePath(String file) {
+		
+		String fileName=file.substring(file.lastIndexOf(File.separator)+1);
+		String fileStorePath=UPLOAD_DIRECTORY.concat(fileName);
+		return fileStorePath;
+	}
 	
 	@Override
 	public void addVideo(Video video) throws DBException {
@@ -377,10 +383,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			query.setParameter("created_by", "abc");
 		    query.setParameter("category_id", video.getCategory().getId());
             query.setParameter("level_id", video.getLevel().getId());
-            file=video.getTranscript();
-            fileName=file.substring(file.lastIndexOf(File.separator)+1);
-            System.out.println("filename is"+fileName);
-			query.setParameter("transcript",fileName);
+       		query.setParameter("transcript",getFilePath(video.getTranscript()));
 			
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
@@ -400,10 +403,8 @@ public class VideoDAOImpl implements IVideoDAO {
 			System.out.println("ref object"+referenceArtifactList);
 			for (ReferenceArtifact ra : referenceArtifactList) {
 				
-				refArtFile=ra.getFile();
-	            refArtFileName=refArtFile.substring(refArtFile.lastIndexOf(File.separator)+1);
 				
-				refDetail = refDetail + "(\"" + ra.getName() + "\"," + "\"" + refArtFileName + "\"" + ",\""
+				refDetail = refDetail + "(\"" + ra.getName() + "\"," + "\"" + getFilePath(ra.getFile()) + "\"" + ",\""
 						+ ra.getDescription() + "\"" + "," + lastId + ")";
 				count++;
 				if (count < referenceArtifactList.size()) {
@@ -430,9 +431,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			List<SampleProgram> sampleProgramList = video.getSampleProgram();
 			if(sampleProgramList.isEmpty()!=true) {
 			for (SampleProgram ra : sampleProgramList) {
-				samProgFile=ra.getFile();
-	            samProgFileName=samProgFile.substring(samProgFile.lastIndexOf(File.separator)+1);
-				samDetail = samDetail + "(\"" + ra.getName() + "\"," + "\"" +samProgFileName + "\"" + ",\""
+				samDetail = samDetail + "(\"" + ra.getName() + "\"," + "\"" +getFilePath(ra.getFile()) + "\"" + ",\""
 						+ ra.getDescription() + "\"" + "," + lastId + ")";
 				count1++;
 				System.out.println("count is" + count1);
@@ -500,12 +499,15 @@ public class VideoDAOImpl implements IVideoDAO {
 		} catch (PersistenceException e) {
 			if(e.getCause().toString().contains("ConstraintViolationException"))
 			{
+				transaction.rollback();
 			  throw new DBException("Video already exists",e);
 			}
 			
+			
 		} 
-		catch(IllegalArgumentException e)
+		catch(Exception e)
 		{
+			transaction.rollback();
 			throw new DBException("Unable to insert video records",e);
 		}
 		
@@ -577,6 +579,8 @@ public class VideoDAOImpl implements IVideoDAO {
 			String end="end ";
 			String condition="where video_id="+vid;
 			List<ReferenceArtifact> referenceArtifactList = video.getReferenceArtifact();
+			if( referenceArtifactList.isEmpty()!=true) 
+			{
 			for(ReferenceArtifact ra:referenceArtifactList) {
 				urefArtFile=ra.getFile();
 	            urefArtFileName=urefArtFile.substring(urefArtFile.lastIndexOf(File.separator)+1);
@@ -600,14 +604,13 @@ public class VideoDAOImpl implements IVideoDAO {
 			   System.out.println("Updated  reference Records Successfully");
 	
 
-            
+			}
             String namestr1="set name=case ";
 			String filestr1=" file=case ";
 			String descstr1=" description=case ";
 			String idstr1="when id=";
             
             List<Integer> idlist1 = session.createSQLQuery("SELECT id from sample_programs where video_id="+vid).getResultList();
-			//int[] idarr=idlist.toArray();
 			int[] array1 = idlist1.stream().mapToInt(i->i).toArray();
 			int len1=array1.length;
 			int s1=0;
@@ -620,6 +623,8 @@ public class VideoDAOImpl implements IVideoDAO {
             String updateSampleProgram="";
 			String updatequerysp="update sample_programs ";
 			List<SampleProgram> sampleProgramList = video.getSampleProgram();
+			if( sampleProgramList.isEmpty()!=true) 
+			{
 			for(SampleProgram sp:sampleProgramList) {
 				usamProgfile=sp.getFile();
 	            usamProgFileName=usamProgfile.substring(usamProgfile.lastIndexOf(File.separator)+1);
@@ -642,7 +647,7 @@ public class VideoDAOImpl implements IVideoDAO {
             if(update2>0)
 			   System.out.println("Updated sampleprogram Records Successfully");
             
-            
+			}
             
             
             List<Integer> idlist2 = session.createSQLQuery("SELECT id from reference_urls where video_id="+vid).getResultList();
@@ -664,6 +669,7 @@ public class VideoDAOImpl implements IVideoDAO {
 	
 			String urlstr=" url=case ";	
 			List<ReferenceUrl> referenceUrlList = video.getReferenceUrl();
+			if(referenceUrlList.isEmpty()!=true) {
 			for(ReferenceUrl ru:referenceUrlList) {
 				namestr3=namestr3+idstr3+array2[s2]+" then \""+ru.getName()+"\" ";
 				urlstr=urlstr+idstr+array2[s2]+" then \""+ru.getUrl()+"\" ";
@@ -679,13 +685,16 @@ public class VideoDAOImpl implements IVideoDAO {
 			if (update3 == 0 || update3 == 1)
 				System.out.println(update3 + " row affected");
 			else
-				System.out.println(update1 + " rows affected");
+				System.out.println(update3 + " rows affected");
             if(update3>0)
 			   System.out.println("Updated  reference url Records Successfully");
+			}
             
-			transaction.commit();
+            transaction.commit();
 		} catch (Exception e) {
+			//transaction.rollback();
 			throw new DBException("Unable to update video records",e);
+			
 		} finally {
 			session.close();
 		}

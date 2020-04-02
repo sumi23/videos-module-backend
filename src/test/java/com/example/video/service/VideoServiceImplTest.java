@@ -2,6 +2,7 @@ package com.example.video.service;
 
 import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.example.video.dao.VideoDAOImpl;
+import com.example.video.exception.DBException;
 import com.example.video.exception.ServiceException;
 import com.example.video.model.Category;
 import com.example.video.model.Level;
@@ -82,6 +84,12 @@ class VideoServiceImplTest {
 		assertNotNull(videoList);
 		assertEquals(videoService.getAllVideos(), getVideoList());
 		verify(videodao, times(1)).getAllVideos();
+	}
+	
+	
+	@Test
+	void testGetAllVideosExpectFailure() throws DBException{
+		when(videodao.getAllVideos()).thenThrow(DBException.class);
 	}
 
 	@Test

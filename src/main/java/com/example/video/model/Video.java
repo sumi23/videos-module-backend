@@ -3,7 +3,7 @@ package com.example.video.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,6 +17,14 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,7 +32,12 @@ import java.util.List;
 @Entity
 @Table(name = "videos", uniqueConstraints = { @UniqueConstraint(columnNames = "name", name = "unique_video_name"),
 		@UniqueConstraint(columnNames = "url", name = "unique_video_url") })
-public class Video {
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class Video implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -49,12 +62,15 @@ public class Video {
 	@Column(name = "created_by", nullable = false, length = 50)
 	String createdBy;
 	@Column(name = "created_on", columnDefinition = "timestamp default CURRENT_TIMESTAMP", nullable = false)
+	///@JsonDeserialize(using=JSONLocalDateTimeSerializer.class)
+	@JsonIgnore
 	private Timestamp createdOn;
 
 	@Column(name = "modified_by")
 	String modifiedBy;
 
 	@Column(name = "modified_on", columnDefinition = "timestamp default null on update CURRENT_TIMESTAMP")
+	@JsonIgnore
 	private Timestamp modifiedOn;
 
 	@OneToOne
@@ -65,19 +81,22 @@ public class Video {
 	@JoinColumn(name = "category_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_videos_category_id"))
 	private Category category;
 
-	@OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "video", cascade = CascadeType.ALL,fetch=FetchType.LAZY)
 	// @OnDelete(action = OnDeleteAction.CASCADE)
 	@LazyCollection(LazyCollectionOption.FALSE)
+	 @JsonManagedReference
 	private List<ReferenceArtifact> referenceArtifact;
 
 	@OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
 	// @OnDelete(action = OnDeleteAction.CASCADE)
 	@LazyCollection(LazyCollectionOption.FALSE)
+	 @JsonManagedReference
 	private List<SampleProgram> sampleProgram;
 
 	@OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
 	// @OnDelete(action = OnDeleteAction.CASCADE)
 	@LazyCollection(LazyCollectionOption.FALSE)
+	 @JsonManagedReference
 	private List<ReferenceUrl> referenceUrl;
 
 	public int getId() {

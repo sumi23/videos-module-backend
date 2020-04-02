@@ -7,11 +7,32 @@ import com.example.video.model.Video;
 
 public class ResponseUtils{
 	
-	public static ResponseEntity<HTTPStatusResponse> prepareSuccessResponse(String responseMessage,
-			Video data){
-		return new ResponseEntity<>(
-				HTTPStatusResponse.setResponse(responseMessage,data,HttpStatus.OK.value()),HttpStatus.OK);
-		
+	private int statusCode;
+	private String description;
+	private Object data;
+	public int getStatusCode() {
+		return statusCode;
+	}
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public Object getData() {
+		return data;
+	}
+	public void setData(Object data) {
+		this.data = data;
+	}
+	public ResponseUtils(int statusCode, String description, Object data) {
+		super();
+		this.statusCode = statusCode;
+		this.description = description;
+		this.data = data;
 	}
 	
 	

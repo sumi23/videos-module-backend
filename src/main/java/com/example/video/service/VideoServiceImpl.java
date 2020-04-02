@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.PersistenceException;
 
@@ -33,7 +35,12 @@ import com.example.video.model.Level;
 import com.example.video.model.Video;
 
 @Service
-public class VideoServiceImpl implements IVideoService {
+public class VideoServiceImpl implements IVideoService,Serializable  {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@Autowired
 	private VideoDAOImpl videodao;
 	
@@ -44,8 +51,11 @@ public class VideoServiceImpl implements IVideoService {
 		List<Video> videos;
 		try {
 			videos = videodao.getAllVideos();
-		} catch (Exception e) {
-			throw new ServiceException("Unable to fetch records for video", e);
+			if(videos.isEmpty()) {
+				throw new ServiceException("No records found");
+			}
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
 		}
 		return videos;
 	}
@@ -77,10 +87,10 @@ public class VideoServiceImpl implements IVideoService {
 	    Video video;
 		try {
 			video=videodao.getVideoById(videoId);
-//			if(video==null)
-//			{
-//				throw new ServiceException("No video records found");
-//			}
+			if(video==null)
+			{
+				throw new ServiceException("No video records found");
+			}
 		}
 		catch (DBException e) {
 		throw new ServiceException("Unable to fetch records for video", e);
@@ -177,7 +187,6 @@ public class VideoServiceImpl implements IVideoService {
 	}
 	@Override
 	public String downloadFileFromLocal(String fileName)throws ServiceException {
-		String contentType="text/plain";
 		Path path = Paths.get(UPLOAD_DIRECTORY + fileName);
 		System.out.println(path);
 		System.out.println(path.toUri());

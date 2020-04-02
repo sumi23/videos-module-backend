@@ -1,4 +1,5 @@
 package com.example.video.controller;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,196 +47,202 @@ import com.example.video.util.ResponseUtils;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("video")
-public class  VideoController
-{
+
+public class VideoController {
 	@Autowired
 	private VideoServiceImpl videoService;
-	
-	 private static final String UPLOAD_DIRECTORY ="E:\\videomodule\\files";  
-	 
-	
-	@GetMapping(value="/list")
-	public List<Video> doGetAllVideos() throws Exception{
+
+	private static final String UPLOAD_DIRECTORY = "E:\\videomodule\\files";
+
+	@GetMapping(value = "/list")
+	public ResponseEntity<HTTPStatusResponse> doGetAllVideos() throws Exception {
 		List<Video> videos;
 		try {
-			videos = (List<Video>)videoService.getAllVideos();
+			videos = videoService.getAllVideos();
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in fetching video records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		return videos;	
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", videos),
+				HttpStatus.OK);
 	}
-	@GetMapping(value="/listLevels")
-	public List<Level> doGetAllLevels() throws Exception{
+
+	@GetMapping(value = "/listLevels")
+	public ResponseEntity<HTTPStatusResponse> doGetAllLevels() throws Exception {
 		List<Level> videos;
 		try {
-			videos = (List<Level>)videoService.getAllLevels();
+			videos = videoService.getAllLevels();
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in fetching video records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		
-		return videos;	
-		
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", videos),
+				HttpStatus.OK);
+
 	}
-	
-	@GetMapping(value="/listCategories")
-	public List<Category> doGetAllCategories() throws Exception{
-		List<Category> videos;
+
+	@GetMapping(value = "/listCategories")
+	public ResponseEntity<HTTPStatusResponse> doGetAllCategories() throws Exception {
+		List<Category> categories;
 		try {
-			videos = (List<Category>)videoService.getAllCategories();
+			categories = videoService.getAllCategories();
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in fetching video records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		return videos;	
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", categories),
+				HttpStatus.OK);
 	}
-	
-	
-	@GetMapping(value="/listActive")
-	public List<Video> doGetActivatedVideos() throws Exception{
+
+	@GetMapping(value = "/listActive")
+	public ResponseEntity<HTTPStatusResponse> doGetActivatedVideos() throws Exception {
 		List<Video> videos;
 		try {
-			videos = (List<Video>)videoService.getActivatedVideos();
+			videos = (List<Video>) videoService.getActivatedVideos();
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in fetching activated video records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		return videos;	
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", videos),
+				HttpStatus.OK);
 	}
-	@GetMapping(value="/listDeactive")
-	public List<Video> doGetDeactivatedVideos() throws Exception{
+
+	@GetMapping(value = "/listDeactive")
+	public ResponseEntity<HTTPStatusResponse> doGetDeactivatedVideos() throws Exception {
 		List<Video> videos;
 		try {
-			videos = (List<Video>)videoService.getDeactivatedVideos();
+			videos = videoService.getDeactivatedVideos();
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in fetching deactivated video records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		return videos;	
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", videos),
+				HttpStatus.OK);
 	}
-	@GetMapping(value="/listById/{videoId}")
-   public Video doGetVideoById(@PathVariable int videoId) throws Exception{
-		
+
+	@GetMapping(value = "/listById/{videoId}")
+	public ResponseEntity<HTTPStatusResponse> doGetVideoById(@PathVariable int videoId) throws Exception {
+
 		Video video;
 		try {
-			video=videoService.getVideoById(videoId);
+			video = videoService.getVideoById(videoId);
+		} catch (ServiceException e) {
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
-		catch (ServiceException e) {
-			throw new ServiceException("Error in fetching video records");
-		}
-		return video;
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data retrival success", video),
+				HttpStatus.OK);
 	}
-	@DeleteMapping(value="/deleteById/{videoId}")
-	   public void doDeleteVideoById(@PathVariable int videoId) throws Exception{
-			
-		
-			try {
-				videoService.deleteVideoById(videoId);
-			}
-			catch (ServiceException e) {
-				throw new ServiceException("Error in deleting video records",e);
-			}
-			
-		}
-	@DeleteMapping(value="/deleteReferenceUrlById/{videoId}")
-	   public void doDeleteReferenceUrlById(@PathVariable int videoId) throws Exception{
-			
-			
-			try {
-				videoService.deleteReferenceUrlById(videoId);
-			}
-			catch (ServiceException e) {
-				throw new ServiceException("Error in deleting video records",e);
-			}
-			
-		}
-	
-	@GetMapping(value="/toggleStatus/{videoId}")
-	   public void doToggleStatus(@PathVariable int videoId) throws Exception{
-			
-			
-			try {
-				videoService.toggleStatus(videoId);
-			}
-			catch (ServiceException e) {
-				throw new ServiceException("Error in changing status records",e);
-			}
-			
-		}
-	@PostMapping(value="/add",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
-	public 	ResponseEntity<?> doaddVideos(@RequestBody Video video)throws Exception
-	{
-//		videoService.addVideo(video);	
-//		return ResponseUtils.prepareSuccessResponse(RESTUriConstant.DATA_INSERT_SUCCESS,video);
-		
-		
+
+	@DeleteMapping(value = "/deleteById/{videoId}")
+	public ResponseEntity<HTTPStatusResponse> doDeleteVideoById(@PathVariable int videoId) throws Exception {
+
 		try {
-			
+			videoService.deleteVideoById(videoId);
+		} catch (ServiceException e) {
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data deletion success"),
+				HttpStatus.OK);
+
+	}
+
+	@DeleteMapping(value = "/deleteReferenceUrlById/{videoId}")
+	public ResponseEntity<HTTPStatusResponse> doDeleteReferenceUrlById(@PathVariable int videoId) throws Exception {
+
+		try {
+			videoService.deleteReferenceUrlById(videoId);
+		} catch (ServiceException e) {
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data deletion success"),
+				HttpStatus.OK);
+
+	}
+
+	@GetMapping(value = "/toggleStatus/{videoId}")
+	public void doToggleStatus(@PathVariable int videoId) throws Exception {
+
+		try {
+			videoService.toggleStatus(videoId);
+		} catch (ServiceException e) {
+			throw new ServiceException("Error in changing status records", e);
+		}
+
+	}
+
+	@PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<HTTPStatusResponse> doaddVideos(@RequestBody Video video) throws Exception {
+
+		try {
+
 			videoService.addVideo(video);
-		} 
-		catch (DBException e) {
-			throw new ServiceException("Video already exists",e);
-			
+		} catch (ServiceException e) {
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()),
+					HttpStatus.BAD_REQUEST);
+
 		}
-		catch (ServiceException e) {
-			throw new ServiceException("Error in adding video records",e);
-			
-		}
-		
-			 return new ResponseEntity<>(video, HttpStatus.OK);
-	
-		}
-	@PutMapping(value="/edit",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
-	public 	ResponseEntity<?> doEditVideos(@RequestBody Video video) throws Exception
-	{
-		
-         try {
-			
-		videoService.updateVideo(video);
-		} 
-		
-		catch (ServiceException e) {
-			throw new ServiceException("Error in updating video records",e);
-			
-		}
-		
-			 return new ResponseEntity<>(video, HttpStatus.OK);
-		
+
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data creation success"),
+				HttpStatus.OK);
+
 	}
-	//produces = MediaType.MULTIPART_FORM_DATA_VALUE
-	@PostMapping(value="/upload",headers = "Content-Type= multipart/form-data",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity uploadToLocalFileSystem(@RequestParam("file") MultipartFile file) throws IOException,ServiceException {
-		
-		 
+
+	@PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<HTTPStatusResponse> doEditVideos(@RequestBody Video video) throws Exception {
+
 		try {
-		String fileName = StringUtils.cleanPath(file.getOriginalFilename()); 
-		 
-		byte[] bytes = file.getBytes();  
-		BufferedOutputStream stream =new BufferedOutputStream(new FileOutputStream(  
-		         new File(UPLOAD_DIRECTORY + File.separator + fileName)));  
-		System.out.println(UPLOAD_DIRECTORY+File.separator+ fileName);
-		stream.write(bytes);  
-		stream.flush();  
-		stream.close();
+
+			videoService.updateVideo(video);
+		}
+
+		catch (ServiceException e) {
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()),
+					HttpStatus.BAD_REQUEST);
+
+		}
+
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Data creation success"),
+				HttpStatus.OK);
+
+	}
+
+	// produces = MediaType.MULTIPART_FORM_DATA_VALUE
+	@PostMapping(value = "/upload", headers = "Content-Type= multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity uploadToLocalFileSystem(@RequestParam("file") MultipartFile file)
+			throws IOException, ServiceException {
+
+		try {
+			String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+
+			byte[] bytes = file.getBytes();
+			BufferedOutputStream stream = new BufferedOutputStream(
+					new FileOutputStream(new File(UPLOAD_DIRECTORY + File.separator + fileName)));
+			System.out.println(UPLOAD_DIRECTORY + File.separator + fileName);
+			stream.write(bytes);
+			stream.flush();
+			stream.close();
 		} catch (IOException e) {
-			throw new  ServiceException("Error in uploading files");
-		}	
+			throw new ServiceException("Error in uploading files");
+		}
 		return ResponseEntity.ok("File uploaded");
 	}
-	@GetMapping(value="/download/{fileName:.+}",produces="text/plain")
-	public ResponseEntity<String> doDownloadFileFromLocal(@PathVariable String fileName) throws Exception
-		{
-		 String response;
-		 String contentType="text/plain";
-			try {
-			response=videoService.downloadFileFromLocal(fileName);
-			    
-			} 
-			catch (Exception e) {
-				throw new ServiceException("Unable to download files for video", e);
-			}
-			return ResponseEntity.ok()
-					.contentType(MediaType.parseMediaType(contentType))
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-					.body(response);
-			//return encodedString;
+
+	@GetMapping(value = "/download/{fileName:.+}", produces = "text/plain")
+	public ResponseEntity<String> doDownloadFileFromLocal(@PathVariable String fileName) throws Exception {
+		String response;
+		String contentType = "text/plain";
+		try {
+			response = videoService.downloadFileFromLocal(fileName);
+
+		} catch (Exception e) {
+			throw new ServiceException("Unable to download files for video", e);
+		}
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"").body(response);
+		// return encodedString;
 	}
-		
-}	
+
+}

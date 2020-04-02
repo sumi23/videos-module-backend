@@ -4,50 +4,43 @@ import com.example.video.model.Video;
 
 public class HTTPStatusResponse {
 	
-	private String message;
-	private Video data;
-	private int value;
-	
-	
-	public HTTPStatusResponse(String message, Video video, int value) {
+	private int statusCode;
+	private String description;
+	private Object data;
+
+	public HTTPStatusResponse(int statusCode, String description, Object data) {
 		super();
-		this.message = message;
-		this.data = video;
-		this.value = value;
+		this.statusCode = statusCode;
+		this.description = description;
+		this.data = data;
 	}
 
-
-	public static HTTPStatusResponse setResponse(String msg,Video data,int val) {
-		return new HTTPStatusResponse(msg,data,val);
+	public int getStatusCode() {
+		return statusCode;
 	}
 
-
-	public String getMessage() {
-		return message;
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
 	}
 
-
-	public void setMessage(String message) {
-		this.message = message;
+	public String getDescription() {
+		return description;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-	public Video getVideo() {
+	public Object getData() {
 		return data;
 	}
 
-
-	public void setVideo(Video video) {
-		this.data = video;
+	public void setData(Object data) {
+		this.data = data;
 	}
 
-
-	public int getValue() {
-		return value;
-	}
-
-
-	public void setValue(int value) {
-		this.value = value;
+	public HTTPStatusResponse(int statusCode, String description) {
+		this.statusCode = statusCode;
+		this.description = description;
 	}
 }
