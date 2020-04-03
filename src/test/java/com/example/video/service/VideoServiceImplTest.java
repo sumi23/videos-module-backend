@@ -2,6 +2,7 @@ package com.example.video.service;
 
 import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,7 +55,7 @@ class VideoServiceImplTest {
 	@Spy
 	Video video = new Video();
 	
-	private int id;
+	private int id=1;
 	String fileName;
 	
 	@Captor
@@ -88,8 +89,9 @@ class VideoServiceImplTest {
 	
 	
 	@Test
-	void testGetAllVideosExpectFailure() throws DBException{
-		when(videodao.getAllVideos()).thenThrow(DBException.class);
+	void testGetAllVideosExpectFailure() throws DBException, ServiceException{
+		doThrow(DBException.class).when(videodao).getAllVideos();
+		assertEquals(videoService.getAllVideos(), null);
 	}
 
 	@Test
@@ -137,6 +139,8 @@ class VideoServiceImplTest {
 	void testToggleStatus() throws ServiceException {
 		// fail("Not yet implemented");
 		// perform the call
+		when(videodao.getVideoById(id)).thenReturn(video);
+		assertNotNull(video);
 				videoService.toggleStatus(id);
 				// verify the mocks
 				verify(videodao, times(1)).toggleStatus(arg.capture());
@@ -145,9 +149,9 @@ class VideoServiceImplTest {
 
 	@Test
 	void testDeleteVideoById() throws ServiceException {
-		// perform the call
+		when(videodao.getVideoById(id)).thenReturn(video);
+		assertNotNull(video);
 		videoService.deleteVideoById(id);
-		// verify the mocks
 		verify(videodao, times(1)).deleteVideoById(arg.capture());
 		assertEquals(id, arg.getValue());
 	}
@@ -162,6 +166,7 @@ class VideoServiceImplTest {
 
 	@Test
 	void testUpdateVideo() throws ServiceException {
+		
 		videoService.updateVideo(video);
 		verify(videodao, times(1)).updateVideo(videoArg.capture());
 		// assertEquals("java",videoArgu.getValue().getName());

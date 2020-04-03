@@ -163,13 +163,16 @@ public class VideoController {
 	}
 
 	@GetMapping(value = "/toggleStatus/{videoId}")
-	public void doToggleStatus(@PathVariable int videoId) throws Exception {
+	public ResponseEntity<HTTPStatusResponse> doToggleStatus(@PathVariable int videoId) throws Exception {
 
 		try {
 			videoService.toggleStatus(videoId);
 		} catch (ServiceException e) {
-			throw new ServiceException("Error in changing status records", e);
+			return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.NOT_FOUND.value(), e.getMessage()),
+					HttpStatus.NOT_FOUND);
 		}
+		return new ResponseEntity<>(new HTTPStatusResponse(HttpStatus.OK.value(), "Status updated"),
+				HttpStatus.OK);
 
 	}
 

@@ -52,7 +52,7 @@ public class VideoServiceImpl implements IVideoService,Serializable  {
 		try {
 			videos = videodao.getAllVideos();
 			if(videos.isEmpty()) {
-				throw new ServiceException("No records found");
+				throw new ServiceException("No video records found");
 			}
 		} catch (DBException e) {
 			throw new ServiceException(e.getMessage());
@@ -65,20 +65,26 @@ public class VideoServiceImpl implements IVideoService,Serializable  {
 		List<Level> levels;
 		try {
 			 levels = videodao.getAllLevels();
-		} catch (Exception e) {
+			 if(levels.isEmpty()) {
+					throw new ServiceException("No level records found");
+				}
+		} catch (DBException e) {
 			throw new ServiceException("Unable to fetch levels", e);
 		}
 		return levels;
 	}	
 	@Override
 	public List<Category> getAllCategories() throws ServiceException {
-		List<Category> levels;
+		List<Category> categories;
 		try {
-			 levels = videodao.getAllCategories();
-		} catch (Exception e) {
+			categories = videodao.getAllCategories();
+			 if(categories.isEmpty()) {
+					throw new ServiceException("No category records found");
+				}
+		} catch (DBException e) {
 			throw new ServiceException("Unable to fetch categories", e);
 		}
-		return levels;
+		return categories;
 	}
 	
 	@Override
@@ -130,7 +136,10 @@ public class VideoServiceImpl implements IVideoService,Serializable  {
 	public void toggleStatus(int videoId) throws ServiceException
 	{
 		try {
-			videodao.toggleStatus(videoId);
+			if(videodao.getVideoById(videoId)!=null)
+			       videodao.toggleStatus(videoId);
+			 else
+				   throw new ServiceException("No video record found for id "+videoId);
 		} 
 		catch (DBException e) {
 			throw new ServiceException("Unable to toggle status");
@@ -141,12 +150,11 @@ public class VideoServiceImpl implements IVideoService,Serializable  {
 	{
 		List<Video> video;
 		try {
-			
-			videodao.deleteVideoById(videoId);
-//			if(video.isEmpty())
-//			{
-//				throw new ServiceException("No video records found");
-//			}
+			  if(videodao.getVideoById(videoId)!=null)
+			       videodao.deleteVideoById(videoId);
+			  else
+				   throw new ServiceException("No video record found for id "+videoId);
+
 		}
 		catch (DBException e) {
 			throw new ServiceException("Unable to delete records for video");
@@ -157,8 +165,11 @@ public class VideoServiceImpl implements IVideoService,Serializable  {
 	public void deleteReferenceUrlById(int videoId) throws ServiceException
 	{
 		
-		try {	
-			videodao.deleteReferenceUrlById(videoId);
+		try {
+		   if(videodao.getVideoById(videoId)!=null)
+			   videodao.deleteReferenceUrlById(videoId);
+		   else
+			   throw new ServiceException("No video record found for id "+videoId);
 		}
 		catch (DBException e) {
 			throw new ServiceException("Unable to delete reference url records for video");

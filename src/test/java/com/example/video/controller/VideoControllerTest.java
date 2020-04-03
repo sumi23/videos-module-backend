@@ -3,6 +3,7 @@ package com.example.video.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,7 +54,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-
+@RunWith(MockitoJUnitRunner.class)
 class VideoControllerTest  {
 	
 
@@ -71,7 +72,7 @@ class VideoControllerTest  {
 	@Spy
 	List<Category> categoryList = new ArrayList<Category>();
 
-	
+	@Spy
 	List<Video> videoList=new ArrayList<Video>();
 
 	
@@ -104,61 +105,14 @@ class VideoControllerTest  {
 
 	@Test
 	void testDoGetAllVideos() throws Exception {
-		List<Video> videoList=new ArrayList<Video>();
-		Video video=new Video();
-		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
-		referenceArtifact1.setId(1);
-		referenceArtifact1.setName("reference artifact example");
-		referenceArtifact1.setFile("java.txt");
-		referenceArtifact1.setDescription("This is a reference artifact");
-		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
-		SampleProgram sampleProgram1 = new SampleProgram();
-		sampleProgram1.setId(1);
-		sampleProgram1.setName("sample program example");
-		sampleProgram1.setFile("sample.txt");
-		sampleProgram1.setDescription("This is a sample program");
-		SampleProgram sampleProgram2 = new SampleProgram();
-		ReferenceUrl referenceUrl1 = new ReferenceUrl();
-		referenceUrl1.setId(1);
-		referenceUrl1.setName("reference url example");
-		referenceUrl1.setUrl("http://www.javase.com");
-		referenceUrl1.setDescription("This is a reference url");
-		List<ReferenceArtifact> refArtList = new ArrayList<ReferenceArtifact>();
-		refArtList.add(referenceArtifact1);
-		List<SampleProgram> samProgList = new ArrayList<SampleProgram>();
-		samProgList.add(sampleProgram1);
-		List<ReferenceUrl> refUrlList = new ArrayList<ReferenceUrl>();
-		refUrlList.add(referenceUrl1);
-		Level level = new Level();
-		level.setId(1);
-		level.setName("Level 1");
-		Category category = new Category();
-		category.setId(1);
-		category.setName("java");
-		video.setId(1);
-		video.setName("java");
-		video.setDisplayName("java");
-		video.setUrl("https://www.javase.com");
-		Time time = Time.valueOf("01:20:09");
-		video.setDuration(time);
-		video.setTags("java");
-		video.setCreatedBy("Subhalakshmi");
-		Timestamp createTimestamp = new Timestamp(System.currentTimeMillis());
-		video.setCreatedOn(createTimestamp);
-		video.setModifiedBy("Subhalakshmi");
-		Timestamp modifyTimestamp = new Timestamp(System.currentTimeMillis());
-		video.setModifiedOn(modifyTimestamp);
-		video.setDescription("This is a java video");
-		video.setTranscript("file.txt");
-		video.setStatus(true);
-		video.setLevel(level);
-		video.setCategory(category);
-		video.setReferenceArtifact(refArtList);
-		video.setSampleProgram(samProgList);
-		video.setReferenceUrl(refUrlList);
-		videoList.add(video);
 	    when(videoService.getAllVideos()).thenReturn(videoList);
 		this.mockMvc.perform(get("/list")).andExpect(status().isOk());
+	}
+	
+	@Test
+	void testDoGetAllVideosExpectFailure() throws Exception {
+		doThrow(ServiceException.class).when(videoService).getAllVideos();
+		this.mockMvc.perform(get("/list")).andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -173,12 +127,30 @@ class VideoControllerTest  {
 //		 assertEquals(200,mvcResult.getResponse().getStatus());
 	}
 
+	
+	@Test
+	void testDoGetAllLevelsExpectFailure() throws Exception {
+		
+		doThrow(ServiceException.class).when(videoService).getAllLevels();
+		 MvcResult mvcResult=this.mockMvc.perform(get("/listLevels")).andExpect(status().isNotFound())
+		.andDo(print())
+		.andReturn();
+//		 String s=mvcResult.getResponse().getContentAsString();
+//		 System.out.print("string is "+s);
+//		 assertEquals(200,mvcResult.getResponse().getStatus());
+	}
+
+	
 	@Test
 	void testDoGetAllCategories() throws Exception {
 		when(videoService.getAllCategories()).thenReturn(categoryList);
 		this.mockMvc.perform(get("/listCategories")).andExpect(status().isOk())
-		.andExpect(jsonPath("$.data[0].id", is(1)))
-		.andExpect(jsonPath("$.data[0].name", is("java")))
+		.andReturn();
+	}
+	@Test
+	void testDoGetAllCategoriesExpectFailure() throws Exception {
+		doThrow(ServiceException.class).when(videoService).getAllCategories();
+		this.mockMvc.perform(get("/listCategories")).andExpect(status().isNotFound())
 		.andReturn();
 	}
 
@@ -187,11 +159,23 @@ class VideoControllerTest  {
         when(videoService.getActivatedVideos()).thenReturn(videoList);
 		this.mockMvc.perform(get("/listActive")).andExpect(status().isOk());
 	}
+	@Test
+	void testDoGetActivatedVideosExpectFailure() throws ServiceException,Exception {
+		doThrow(ServiceException.class).when(videoService).getActivatedVideos();
+		this.mockMvc.perform(get("/listActive")).andExpect(status().isNotFound());
+	}
 
 	@Test
 	void testDoGetDeactivatedVideos() throws Exception {
 		when(videoService.getDeactivatedVideos()).thenReturn(videoList);
 		this.mockMvc.perform(get("/listDeactive")).andExpect(status().isOk());
+	}
+	
+	@Test
+	void testDoGetDeactivatedVideosExpectFailure() throws Exception {
+		
+		doThrow(ServiceException.class).when(videoService).getDeactivatedVideos();
+		this.mockMvc.perform(get("/listDeactive")).andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -199,6 +183,14 @@ class VideoControllerTest  {
 		int id=1;
 		when(videoService.getVideoById(id)).thenReturn(video);
 		this.mockMvc.perform(get("/listById/{id}",1)).andExpect(status().isOk()).andDo(print());
+		verify(videoService, times(1)).getVideoById(id);
+	}
+	
+	@Test
+	void testDoGetVideoByIdExpectFailure() throws Exception {
+		int id=1;
+		doThrow(ServiceException.class).when(videoService).getVideoById(id);
+		this.mockMvc.perform(get("/listById/{id}",id)).andExpect(status().isNotFound()).andDo(print());
 		verify(videoService, times(1)).getVideoById(id);
 	}
 
@@ -210,10 +202,24 @@ class VideoControllerTest  {
 	}
 
 	@Test
+	void testDoDeleteVideoByIdExpectFailure() throws Exception {
+		int id=1;
+		doThrow(ServiceException.class).when(videoService).deleteVideoById(id);
+		this.mockMvc.perform(delete("/deleteById/{id}",1)).andExpect(status().isNotFound()).andDo(print());
+	}
+
+	@Test
 	void testDoDeleteReferenceUrlById() throws Exception {
 		int id=1;
 		doNothing().when(videoService).deleteReferenceUrlById(id);
 		this.mockMvc.perform(delete("/deleteReferenceUrlById/{id}",1)).andExpect(status().isOk()).andDo(print());
+	}
+	
+	@Test
+	void testDoDeleteReferenceUrlByIdExpectFailure() throws Exception {
+		int id=1;
+		doThrow(ServiceException.class).when(videoService).deleteReferenceUrlById(id);
+		this.mockMvc.perform(delete("/deleteReferenceUrlById/{id}",1)).andExpect(status().isNotFound()).andDo(print());
 	}
 
 	@Test
@@ -221,6 +227,13 @@ class VideoControllerTest  {
 		int id=1;
 		doNothing().when(videoService).toggleStatus(id);
 		this.mockMvc.perform(get("/toggleStatus/{id}",1)).andExpect(status().isOk()).andDo(print());
+	}
+	
+	@Test
+	void testDoToggleStatusExpectFailure() throws Exception {
+		int id=1;
+		doThrow(ServiceException.class).when(videoService).toggleStatus(id);
+		this.mockMvc.perform(get("/toggleStatus/{id}",1)).andExpect(status().isNotFound()).andDo(print());
 	}
 
 	@Test
@@ -348,9 +361,6 @@ class VideoControllerTest  {
 
 	@Test
 	void testUploadToLocalFileSystem() throws Exception {
-//		 MockMultipartFile firstFile = new MockMultipartFile("data", "filename.txt", "text/plain", "some xml".getBytes());
-//		this.mockMvc.perform(multipart("/upload").file(firstFile)).andExpect(status().isOk()).andDo(print());
-	
 		 MockMultipartFile firstFile = new MockMultipartFile("file", "filename.txt", MediaType.TEXT_PLAIN_VALUE, "some xml".getBytes());
 		this.mockMvc.perform(multipart("/upload").file(firstFile)).andExpect(status().isOk()).andDo(print());
 	

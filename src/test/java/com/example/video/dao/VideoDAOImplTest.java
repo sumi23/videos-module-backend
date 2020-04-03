@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,12 +45,21 @@ class VideoDAOImplTest {
 	 private Session session;
 	 
 	 @Mock
-	 Query<Video> query;
+	 Query<Level> mockLevelQuery;
 	 
-	@Spy
+	 @Mock
+	 Query<Category> mockCategoryQuery;
+	 
+	 @Mock
+	 Query<Video> mockVideoQuery;
+	 
+	 @Mock
+	 Transaction transaction;
+	 
+	
 	List<Level> levelList = new ArrayList<Level>();
 
-	@Spy
+	
 	List<Category> categoryList = new ArrayList<Category>();
 
 	
@@ -67,12 +78,17 @@ class VideoDAOImplTest {
 		levelList = getLevelList();
 		categoryList = getCategoryList();
 		when(sessionFactory.getCurrentSession()).thenReturn(session);
-		when(session.createQuery(Mockito.anyString())).thenReturn(query);
+		when(session.beginTransaction()).thenReturn(transaction);
+		//when(session.createQuery(Mockito.anyString())).thenReturn(query);
+		
+		
+		doReturn(mockCategoryQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
 	}
 
 	
 	@AfterEach
 	void tearDown() throws Exception {
+		doNothing().when(transaction).commit();
 		doNothing().when(session).close();
 	}
 	public Video getVideo() {
@@ -133,10 +149,97 @@ class VideoDAOImplTest {
 		return videoList;
 	}
 
-//	@Test
-//	void testGetAllVideos() throws DBException {
-//		List<Video> videoList = new ArrayList<Video>();
-//		Video video = new Video();
+	@Test
+	void testGetAllVideos() throws DBException {	
+		doReturn(mockVideoQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
+		when(mockVideoQuery.getResultList()).thenReturn(videoList);
+		assertNotNull(videodao.getAllVideos());
+		assertEquals(videodao.getAllVideos(),videoList);
+	}
+	public List<Level> getLevelList() {
+
+		Level level = new Level();
+		level.setId(1);
+		level.setName("level 1");
+		levelList.add(level);
+		return levelList;
+	}
+
+	public List<Category> getCategoryList() {
+
+		Category category = new Category();
+		category.setId(1);
+		category.setName("java");
+		categoryList.add(category);
+		return categoryList;
+	}
+	@Test
+	void testGetAllLevels() {
+		doReturn(mockLevelQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
+		when(mockLevelQuery.getResultList()).thenReturn(levelList);
+//	  	List<Level> level=new ArrayList<>();
+        assertNotNull(videodao.getAllLevels());
+		//assertEquals(videodao.getAllLevels(),levelList);
+	}
+
+	@Test
+	void testGetAllCategories() {
+		when(mockCategoryQuery.getResultList()).thenReturn(categoryList);	
+	  	List<Category> category=new ArrayList<>();
+	  	category=videodao.getAllCategories();
+    	assertNotNull(category);
+		assertEquals(videodao.getAllLevels(),categoryList);
+	}
+
+	@Test
+	void testGetVideoById() {
+		int id=0;
+		doReturn(video).when(session).get(Video.class, id);
+		assertNotNull(videodao.getVideoById(id));
+		assertEquals(videodao.getVideoById(id),video);
+	}
+
+	@Test
+	void testGetActivatedVideos() {
+		doReturn(mockVideoQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
+		when(mockVideoQuery.getResultList()).thenReturn(videoList);
+		assertNotNull(videodao.getAllVideos());
+		assertEquals(videodao.getAllVideos(),videoList);
+	}
+
+	@Test
+	void testToggleStatus() {
+		
+	}
+
+	@Test
+	void testGetDeactivatedVideos() {
+		
+	}
+
+	@Test
+	void testDeleteVideoById() {
+		
+	}
+
+	@Test
+	void testDeleteReferenceArtifactById() {
+		
+	}
+
+	@Test
+	void testDeleteSampleProgramById() {
+		
+	}
+
+	@Test
+	void testDeleteReferenceUrlById() {
+		
+	}
+
+	@Test
+	void testAddVideo() {
+//		Video video=new Video();
 //		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
 //		referenceArtifact1.setId(1);
 //		referenceArtifact1.setName("reference artifact example");
@@ -184,88 +287,8 @@ class VideoDAOImplTest {
 //		video.setReferenceArtifact(refArtList);
 //		video.setSampleProgram(samProgList);
 //		video.setReferenceUrl(refUrlList);
-//		videoList.add(video);
-//		when(query.getResultList()).thenReturn(videoList);
-//		assertNotNull(videodao.getAllVideos());
-//		//when(videodao.getAllVideos()).thenReturn(videoList);
-//		//List<Video> v=videodao.getAllVideos();
-//		//assertEquals(videoList,videodao.getAllVideos());
-//	}
-	public List<Level> getLevelList() {
-
-		Level level = new Level();
-		level.setId(1);
-		level.setName("level 1");
-		levelList.add(level);
-		return levelList;
-	}
-
-	public List<Category> getCategoryList() {
-
-		Category category = new Category();
-		category.setId(1);
-		category.setName("java");
-		categoryList.add(category);
-		return categoryList;
-	}
-	@Test
-	void testGetAllLevels() {
-		//when(videodao.getAllLevels()).thenReturn(levelList);
-		//List<Video> v=videodao.getAllVideos();
-		List<Level> level=null;
-//		level=videodao.getAllLevels();
-//		assertNotNull(level);
-		//assertEquals(levelList,videodao.getAllLevels());
-	}
-
-	@Test
-	void testGetAllCategories() {
-	
-	}
-
-	@Test
-	void testGetVideoById() {
-		
-	}
-
-	@Test
-	void testGetActivatedVideos() {
-		
-	}
-
-	@Test
-	void testToggleStatus() {
-		
-	}
-
-	@Test
-	void testGetDeactivatedVideos() {
-		
-	}
-
-	@Test
-	void testDeleteVideoById() {
-		
-	}
-
-	@Test
-	void testDeleteReferenceArtifactById() {
-		
-	}
-
-	@Test
-	void testDeleteSampleProgramById() {
-		
-	}
-
-	@Test
-	void testDeleteReferenceUrlById() {
-		
-	}
-
-	@Test
-	void testAddVideo() {
-		
+//		when(query.executeUpdate()).thenReturn(0);
+//		videodao.addVideo(video);
 	}
 
 	@Test

@@ -60,7 +60,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 		transaction = session.beginTransaction();
 			String hql = "FROM Level";
-			TypedQuery<Level> query = session.createQuery(hql);
+			Query<Level> query = session.createQuery(hql,Level.class);
 			levelList = query.getResultList();
 		transaction.commit();
 		}
@@ -80,7 +80,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "FROM Category";
-			TypedQuery<Category> query = session.createQuery(hql,Category.class);
+			Query<Category> query = session.createQuery(hql,Category.class);
 			categoryList = query.getResultList();
 			transaction.commit();
 		}
@@ -118,7 +118,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			String hql = "Select v.name,v.displayName,v.url,"
 					+ "v.duration,v.status "
 					+ "from Video v where v.status=true";
-			TypedQuery<Video> query = session.createQuery(hql,Video.class);
+			Query<Video> query = session.createQuery(hql,Video.class);
 			videos = query.getResultList();
 			transaction.commit();
 		}
@@ -134,39 +134,28 @@ public class VideoDAOImpl implements IVideoDAO {
 	@Override
 	public void toggleStatus(int videoId) throws DBException{
 		Video video=null;
-		Boolean status1;
 		try
 		{
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
 			String hql = "Select v.status from Video v where v.id=:id";
-			TypedQuery<Video> query = session.createQuery(hql);
+			Query<Video> query = session.createQuery(hql);
 			query.setParameter("id",videoId);
-//		    List stat=query.getResultList();
-//			if(stat.get(0).equals(true))
-//			{
-//				stat.add(0,false);
-//			}
-//			else
-//			{
-//				stat.add(0,true);
-//			}
-//			Boolean new1=(Boolean) stat.get(0);
 			video=session.get(Video.class, videoId);
-			Boolean new1=video.getStatus();
-			if(new1==true)
+			Boolean status=video.getStatus();
+			if(status==true)
 			{
-				new1=false;
+				status=false;
 			}
 			else
 			{
-				new1=true;
+				status=true;
 			}
 				
-			System.out.println("status is"+new1);
+			System.out.println("status is"+status);
 			String hql1 = "update Video v  set v.status=:val where v.id=:id";
-			TypedQuery<Video> query1 = session.createQuery(hql1);
-			query1.setParameter("val",new1);
+			Query<Video> query1 = session.createQuery(hql1);
+			query1.setParameter("val",status);
 			query1.setParameter("id",videoId);				
 			int res= query1.executeUpdate();
 			transaction.commit();
@@ -188,7 +177,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			String hql = "Select v.name,v.displayName,v.url,"
 					+ "v.duration,v.status "
 					+ "from Video v where v.status=false";
-			TypedQuery<Video> query = session.createQuery(hql,Video.class);
+		Query<Video> query = session.createQuery(hql,Video.class);
 			videos = query.getResultList();
 			transaction.commit();
 		}
@@ -235,7 +224,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
 			String hql = "delete from reference_artifacts where id=:id";
-			TypedQuery<Video> query = session.createQuery(hql);
+			Query<Video> query = session.createQuery(hql);
 			query.setParameter("id", id);
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
@@ -265,7 +254,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
 			String hql = "delete from sample_programs where id=:Id";
-			TypedQuery<Video> query = session.createQuery(hql);
+			Query<Video> query = session.createQuery(hql);
 			query.setParameter("Id", Id);
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
@@ -294,7 +283,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
 			String hql = "delete from ReferenceUrl r where r.id=:Id";
-			TypedQuery<Video> query = session.createQuery(hql);
+			Query<Video> query = session.createQuery(hql);
 			query.setParameter("Id", Id);
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
@@ -372,7 +361,7 @@ public class VideoDAOImpl implements IVideoDAO {
 					+ "created_by,category_id,level_id,transcript) "
 					+ "values(:name,:display_name,:url,:duration,:tags,:status,:description,"
 					+ ":created_by,:category_id,:level_id,:transcript)";
-			TypedQuery<Video> query = session.createSQLQuery(videoIns);
+			Query<Video> query = session.createSQLQuery(videoIns);
 			query.setParameter("name", video.getName());
 			query.setParameter("display_name", video.getDisplayName());
 			query.setParameter("url", video.getUrl());
@@ -413,7 +402,7 @@ public class VideoDAOImpl implements IVideoDAO {
 
 			}
 			String hql1 = "insert into reference_artifacts(name,file,description,video_id) values" + refDetail;
-			TypedQuery<Video> query1 = session.createSQLQuery(hql1);
+			Query<Video> query1 = session.createSQLQuery(hql1);
 
 			video.setReferenceArtifact(referenceArtifactList);
 			int update1 = query1.executeUpdate();
@@ -446,7 +435,7 @@ public class VideoDAOImpl implements IVideoDAO {
 
 			}
 			String hql2 = "insert into sample_programs(name,file,description,video_id) values" + samDetail;
-			TypedQuery<Video> query2 = session.createSQLQuery(hql2);
+			Query<Video> query2 = session.createSQLQuery(hql2);
 
 			video.setSampleProgram(sampleProgramList);
 			int update2 = query2.executeUpdate();
@@ -485,7 +474,7 @@ public class VideoDAOImpl implements IVideoDAO {
 
 			}
 			String hql3 = "insert into reference_urls(name,url,description,video_id) values" + refuDetail;
-			TypedQuery<Video> query3 = session.createSQLQuery(hql3);
+			Query<Video> query3 = session.createSQLQuery(hql3);
 
 			video.setReferenceUrl(referenceurlList);
 			int update3 = query3.executeUpdate();
@@ -533,7 +522,7 @@ public class VideoDAOImpl implements IVideoDAO {
 					+ "level_id=:level_id,category_id=:category_id,"
 					+ "transcript=:transcript "
 					+ "where id=:id";	
-			TypedQuery<Video> query = session.createSQLQuery(hql);
+			Query<Video> query = session.createSQLQuery(hql);
 			query.setParameter("id",video.getId());
 			query.setParameter("name", video.getName());
 			query.setParameter("display_name", video.getDisplayName());
@@ -593,7 +582,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			}
 			
 			hql1=upstr+namestr+end+","+filestr+end+","+descstr+end+condition+";";		
-			TypedQuery<Video> query1 = session.createSQLQuery(hql1);
+			Query<Video> query1 = session.createSQLQuery(hql1);
 			video.setReferenceArtifact(referenceArtifactList);
 			int update1 = query1.executeUpdate();
 			if (update1 == 0 || update1 == 1)
@@ -637,7 +626,7 @@ public class VideoDAOImpl implements IVideoDAO {
 					break;
 			}			
 			updateSampleProgram=updatequerysp+namestr1+end+","+filestr1+end+","+descstr1+end+condition+";";		
-			TypedQuery<Video> query2 = session.createSQLQuery(updateSampleProgram);
+			Query<Video> query2 = session.createSQLQuery(updateSampleProgram);
 			video.setSampleProgram(sampleProgramList);
 			int update2 = query2.executeUpdate();
 			if (update2 == 0 || update2 == 1)
@@ -679,7 +668,7 @@ public class VideoDAOImpl implements IVideoDAO {
 					break;
 			}	
 			hql3=upstrrefUrl+namestr3+end+","+urlstr+end+","+descstr3+end+condition+";";		
-			TypedQuery<Video> query3 = session.createSQLQuery(hql3);
+		Query<Video> query3 = session.createSQLQuery(hql3);
 			video.setReferenceUrl(referenceUrlList);
 			int update3 = query3.executeUpdate();
 			if (update3 == 0 || update3 == 1)
@@ -710,7 +699,7 @@ public class VideoDAOImpl implements IVideoDAO {
 			session = sessionFactory.getCurrentSession();
 			t = session.beginTransaction();
 			String hql = "update Video v set v.status=false where v.id=:videoId";
-			TypedQuery<Video> query = session.createQuery(hql);
+			Query<Video> query = session.createQuery(hql);
 			query.setParameter("videoId", videoId);
 			int update = query.executeUpdate();
 			if (update == 0 || update == 1)
