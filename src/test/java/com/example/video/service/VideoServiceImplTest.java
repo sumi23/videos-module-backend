@@ -3,6 +3,7 @@ package com.example.video.service;
 import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -91,8 +92,12 @@ class VideoServiceImplTest {
 	@Test
 	void testGetAllVideosExpectFailure() throws DBException, ServiceException{
 		doThrow(DBException.class).when(videodao).getAllVideos();
-		assertEquals(videoService.getAllVideos(), null);
+		//when(videodao.getAllVideos()).thenReturn(videoList);
+        doReturn(null).when(videodao).getAllVideos();
+	   assertThrows(ServiceException.class,()->{videoService.getAllVideos();});
+		//assertEquals(videoService.getAllVideos(), null);
 	}
+	
 
 	@Test
 	void testGetAllLevels() throws ServiceException {
@@ -162,6 +167,15 @@ class VideoServiceImplTest {
 		verify(videodao, times(1)).addVideo(videoArg.capture());
 		// assertEquals("java",videoArgu.getValue().getName());
 		assertNotNull(videoArg);
+	}
+	
+	@Test
+	void testAddVideoExpectFailure() throws ServiceException {
+		doThrow(DBException.class).when(videodao).addVideo(video);
+//		videoService.addVideo(video);
+//		verify(videodao, times(1)).addVideo(videoArg.capture());
+//		// assertEquals("java",videoArgu.getValue().getName());
+//		assertNotNull(videoArg);
 	}
 
 	@Test

@@ -299,6 +299,17 @@ class VideoControllerTest  {
 	}
 
 	@Test
+	void testDoAddVideosExpectFailure() throws Exception{
+		Video video=new Video();
+		String videoJson=objectmapper.writeValueAsString(video);
+		doThrow(ServiceException.class).when(videoService).addVideo(video);
+		//this.mockMvc.perform(post("/add")).andExpect(status().isBadRequest()).andDo(print());
+		this.mockMvc.perform(post("/add")).andExpect(status().isBadRequest());
+	}
+	
+	
+	
+	@Test
 	void testDoEditVideos() throws Exception {
 		Video video=new Video();
 		ReferenceArtifact referenceArtifact1 = new ReferenceArtifact();
@@ -358,13 +369,18 @@ class VideoControllerTest  {
 				 .content(videoJson))
 		.andExpect(status().isOk()).andDo(print()).andReturn();
 	}
+	
+	@Test
+	void testDoEditVideosExpectFailure() throws Exception{
+		doThrow(ServiceException.class).when(videoService).updateVideo(video);
+		this.mockMvc.perform(put("/edit")).andExpect(status().isBadRequest());
+	}
+	
 
 	@Test
 	void testUploadToLocalFileSystem() throws Exception {
-		 MockMultipartFile firstFile = new MockMultipartFile("file", "filename.txt", MediaType.TEXT_PLAIN_VALUE, "some xml".getBytes());
+		 MockMultipartFile firstFile = new MockMultipartFile("file", "filename.txt", MediaType.TEXT_PLAIN_VALUE, "some file content".getBytes());
 		this.mockMvc.perform(multipart("/upload").file(firstFile)).andExpect(status().isOk()).andDo(print());
-	
-	
 	}
 
 	@Test

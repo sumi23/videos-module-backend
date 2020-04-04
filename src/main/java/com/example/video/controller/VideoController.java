@@ -176,7 +176,7 @@ public class VideoController {
 
 	}
 
-	@PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<HTTPStatusResponse> doaddVideos(@RequestBody Video video) throws Exception {
 
 		try {
@@ -193,7 +193,7 @@ public class VideoController {
 
 	}
 
-	@PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PutMapping(value = "/edit", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<HTTPStatusResponse> doEditVideos(@RequestBody Video video) throws Exception {
 
 		try {
@@ -215,7 +215,7 @@ public class VideoController {
 	// produces = MediaType.MULTIPART_FORM_DATA_VALUE
 	@PostMapping(value = "/upload", headers = "Content-Type= multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity uploadToLocalFileSystem(@RequestParam("file") MultipartFile file)
-			throws IOException, ServiceException {
+			throws ServiceException {
 
 		try {
 			String fileName = StringUtils.cleanPath(file.getOriginalFilename());

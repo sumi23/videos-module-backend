@@ -195,13 +195,6 @@ public class VideoDAOImpl implements IVideoDAO {
 		try {
 			session = sessionFactory.getCurrentSession();
 			transaction = session.beginTransaction();
-			/*
-			 * String hql = "delete from Video video where video.id=:videoId";
-			 * TypedQuery<Video> query = session.createQuery(hql);
-			 * query.setParameter("videoId", videoId); int update = query.executeUpdate();
-			 * if (update == 0 || update == 1) System.out.println(update + " row affected");
-			 * else System.out.println(update + " rows affected");
-			 */
 			session.delete(session.get(Video.class, videoId));
 			System.out.println("Deleted Records Successfully");
 			transaction.commit();

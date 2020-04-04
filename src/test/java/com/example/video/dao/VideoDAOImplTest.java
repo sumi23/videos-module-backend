@@ -203,8 +203,8 @@ class VideoDAOImplTest {
 	void testGetActivatedVideos() {
 		doReturn(mockVideoQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
 		when(mockVideoQuery.getResultList()).thenReturn(videoList);
-		assertNotNull(videodao.getAllVideos());
-		assertEquals(videodao.getAllVideos(),videoList);
+		assertNotNull(videodao.getActivatedVideos());
+		assertEquals(videodao.getActivatedVideos(),videoList);
 	}
 
 	@Test
@@ -214,11 +214,18 @@ class VideoDAOImplTest {
 
 	@Test
 	void testGetDeactivatedVideos() {
-		
+		doReturn(mockVideoQuery).when(session).createQuery(Mockito.anyString(),Mockito.any());
+		when(mockVideoQuery.getResultList()).thenReturn(videoList);
+		assertNotNull(videodao.getDeactivatedVideos());
+		assertEquals(videodao.getDeactivatedVideos(),videoList);	
 	}
 
 	@Test
 	void testDeleteVideoById() {
+		int id=0;
+		doReturn(video).when(session).get(Video.class, id);
+		doNothing().when(session).delete(session.get(Video.class, id));
+		assertEquals(videodao.getVideoById(id),video);
 		
 	}
 
