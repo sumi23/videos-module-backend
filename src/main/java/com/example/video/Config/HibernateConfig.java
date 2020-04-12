@@ -15,25 +15,22 @@ public class HibernateConfig {
 
 	@Bean(name = "sessionFactory")
 	public LocalSessionFactoryBean getSessionFactory() { // creating session factory
-		System.out.println("Initialze session factory");
-		
+	
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setDataSource(dataSource);
 		sessionFactory.setPackagesToScan("com.example.video");
 		sessionFactory.setHibernateProperties(hibernateProperties());
-		System.out.println("close session fac");
 		return sessionFactory;
 		
 	}
 
 	private Properties hibernateProperties() { // configure hibernate properties
-		System.out.println("Initialze hib propertes");
+		
 		Properties properties = new Properties();
 		properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
 		properties.put("hibernate.show_sql", "true");
 		properties.put("hibernate.hbm2ddl.auto", "update");
 		properties.put("hibernate.format_sql", "true");
-		System.out.println("close hib propertes");
 		return properties;
 	}
 }

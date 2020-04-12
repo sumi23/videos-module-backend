@@ -50,7 +50,7 @@ public class Video {
 	@Column(name = "description", columnDefinition = "text")
 	String description;
 	
-	@Column(name = "transcript", length = 50)
+	@Column(name = "transcript", length = 100)
 	private String transcript;
 
 	@Column(name = "created_by", nullable = false, length = 50)

@@ -28,7 +28,7 @@ public class SampleProgram{
 	@Column(name = "name", nullable = false, length = 50)
 	String name;
 	
-	@Column(name = "file", nullable = false, length = 50)
+	@Column(name = "file", nullable = false, length = 100)
 	String file;
 	
 	@Column(name = "description", length = 200)
