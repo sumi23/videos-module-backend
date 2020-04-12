@@ -1,7 +1,5 @@
 package com.example.video.model;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -13,20 +11,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "reference_urls", schema = "videosdb", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "name", name = "unique_reference_url_name") })
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class ReferenceUrl implements Serializable{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class ReferenceUrl{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,15 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "reference_artifacts", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "name", name = "unique_reference_artifact_name") })
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class ReferenceArtifact implements Serializable {
 
 	/**

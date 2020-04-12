@@ -1,32 +1,15 @@
 package com.example.video.service;
-import java.io.File;
-import java.io.FileInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 
-import javax.persistence.PersistenceException;
-
-import org.apache.tomcat.util.http.fileupload.IOUtils;
+import com.example.video.constants.BusinessConstant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-
 import com.example.video.dao.VideoDAOImpl;
 import com.example.video.exception.DBException;
 import com.example.video.exception.ServiceException;
@@ -35,194 +18,194 @@ import com.example.video.model.Level;
 import com.example.video.model.Video;
 
 @Service
-public class VideoServiceImpl implements IVideoService,Serializable  {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class VideoServiceImpl implements IVideoService {
 
 	@Autowired
-	private VideoDAOImpl videodao;
-	
-	 private static final String UPLOAD_DIRECTORY ="E:/videomodule/files/";
+	private VideoDAOImpl videoDAOImpl;
 
 	@Override
 	public List<Video> getAllVideos() throws ServiceException {
 		List<Video> videos;
 		try {
-			videos = videodao.getAllVideos();
-			if(videos.isEmpty()) {
-				throw new ServiceException("No video records found");
+			videos = videoDAOImpl.getAllVideos();
+			if (videos.isEmpty())
+				throw new ServiceException(BusinessConstant.VIDEOS_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+		return videos;
+	}
+
+	@Override
+	public List<Level> getAllLevels() throws ServiceException {
+		List<Level> levels;
+		try {
+			levels = videoDAOImpl.getAllLevels();
+			if (levels.isEmpty()) {
+				throw new ServiceException(BusinessConstant.LEVELS_NOT_FOUND);
+			}
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+		return levels;
+	}
+
+	@Override
+	public List<Category> getAllCategories() throws ServiceException {
+		List<Category> categories;
+		try {
+			categories = videoDAOImpl.getAllCategories();
+			if (categories.isEmpty()) {
+				throw new ServiceException(BusinessConstant.CATEGORIES_NOT_FOUND);
+			}
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+		return categories;
+	}
+
+	@Override
+	public Video getVideoById(int videoId) throws ServiceException {
+		Video video;
+		try {
+			video = videoDAOImpl.getVideoById(videoId);
+			if (video == null) {
+				throw new ServiceException(BusinessConstant.VIDEO_NOT_FOUND);
+			}
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+		return video;
+	}
+
+	@Override
+	public List<Video> getActivatedVideos() throws ServiceException {
+		List<Video> videos;
+		try {
+			videos = videoDAOImpl.getActivatedVideos();
+			if (videos.isEmpty()) {
+				throw new ServiceException(BusinessConstant.VIDEOS_NOT_FOUND);
 			}
 		} catch (DBException e) {
 			throw new ServiceException(e.getMessage());
 		}
 		return videos;
 	}
-	
-	@Override
-	public List<Level> getAllLevels() throws ServiceException {
-		List<Level> levels;
-		try {
-			 levels = videodao.getAllLevels();
-			 if(levels.isEmpty()) {
-					throw new ServiceException("No level records found");
-				}
-		} catch (DBException e) {
-			throw new ServiceException("Unable to fetch levels", e);
-		}
-		return levels;
-	}	
-	@Override
-	public List<Category> getAllCategories() throws ServiceException {
-		List<Category> categories;
-		try {
-			categories = videodao.getAllCategories();
-			 if(categories.isEmpty()) {
-					throw new ServiceException("No category records found");
-				}
-		} catch (DBException e) {
-			throw new ServiceException("Unable to fetch categories", e);
-		}
-		return categories;
-	}
-	
-	@Override
-	public Video getVideoById(int videoId) throws ServiceException
-	{
-	    Video video;
-		try {
-			video=videodao.getVideoById(videoId);
-			if(video==null)
-			{
-				throw new ServiceException("No video records found");
-			}
-		}
-		catch (DBException e) {
-		throw new ServiceException("Unable to fetch records for video", e);
-		}
-		return video;
-	}
-	@Override
-	public List<Video> getActivatedVideos() throws ServiceException {
-		List<Video> videos;
-		try {
-			videos = (List<Video>) videodao.getActivatedVideos();
-			if(videos==null)
-			{
-				throw new ServiceException("No video records found");
-			}
-		} catch (DBException e) {
-			throw new ServiceException("Unable to fetch activated video records", e);
-		}
-		return videos;
-	}
+
 	@Override
 	public List<Video> getDeactivatedVideos() throws ServiceException {
 		List<Video> videos;
 		try {
-			videos = (List<Video>) videodao.getDeactivatedVideos();
-			if(videos==null)
-			{
-				throw new ServiceException("No video records found");
+			videos = videoDAOImpl.getDeactivatedVideos();
+			if (videos.isEmpty()) {
+				throw new ServiceException(BusinessConstant.VIDEOS_NOT_FOUND);
 			}
 		} catch (DBException e) {
-			throw new ServiceException("Unable to fetch deactivated video records", e);
+			throw new ServiceException(e.getMessage());
 		}
 		return videos;
 	}
-	
+
 	@Override
-	public void toggleStatus(int videoId) throws ServiceException
-	{
+	public void toggleStatus(int videoId) throws ServiceException {
 		try {
-			if(videodao.getVideoById(videoId)!=null)
-			       videodao.toggleStatus(videoId);
-			 else
-				   throw new ServiceException("No video record found for id "+videoId);
-		} 
-		catch (DBException e) {
-			throw new ServiceException("Unable to toggle status");
+			if (videoDAOImpl.getVideoById(videoId) != null)
+				videoDAOImpl.toggleStatus(videoId);
+			else
+				throw new ServiceException(BusinessConstant.VIDEO_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
 		}
 	}
+
 	@Override
-	public void deleteVideoById(int videoId) throws ServiceException
-	{
-		List<Video> video;
+	public void deleteVideoById(int videoId) throws ServiceException {
 		try {
-			  if(videodao.getVideoById(videoId)!=null)
-			       videodao.deleteVideoById(videoId);
-			  else
-				   throw new ServiceException("No video record found for id "+videoId);
+			if (videoDAOImpl.getVideoById(videoId) != null)
+				videoDAOImpl.deleteVideoById(videoId);
+			else
+				throw new ServiceException(BusinessConstant.VIDEOS_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public void deleteReferenceArtifactById(int videoId) throws ServiceException {
+
+		try {
+			if (videoDAOImpl.getReferenceArtifactById(videoId) != null)
+				videoDAOImpl.deleteReferenceArtifactById(videoId);
+			else
+				throw new ServiceException(BusinessConstant.REFERENCE_ARTIFACT_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public void deleteSampleProgramById(int videoId) throws ServiceException {
+
+		try {
+			if (videoDAOImpl.getSampleProgramById(videoId) != null)
+				videoDAOImpl.deleteSampleProgramById(videoId);
+			else
+				throw new ServiceException(BusinessConstant.SAMPLE_PROGRAM_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public void deleteReferenceUrlById(int videoId) throws ServiceException {
+
+		try {
+			if (videoDAOImpl.getReferenceUrlById(videoId) != null)
+				videoDAOImpl.deleteReferenceUrlById(videoId);
+			else
+				throw new ServiceException(BusinessConstant.REFERENCE_URL_NOT_FOUND);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public void addVideo(Video video) throws ServiceException {
+		try {
+			videoDAOImpl.addVideo(video);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public void updateVideo(Video video) throws ServiceException {
+		try {
+			videoDAOImpl.updateVideo(video);
+		} catch (DBException e) {
+			throw new ServiceException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public String downloadFileFromLocal(String fileName) throws ServiceException {
+		String encodedString;
+		try {
+			Path path = Paths.get(BusinessConstant.UPLOAD_DIRECTORY + fileName);
+			byte[] bytes = Files.readAllBytes(path);
+			Base64.Encoder encoder = Base64.getEncoder();
+			byte[] encoded = encoder.encode(bytes);
+			encodedString = new String(encoded);
+		} catch (IOException e) {
+			throw new ServiceException(BusinessConstant.FILE_DOWNLOAD_ERROR);
 
 		}
-		catch (DBException e) {
-			throw new ServiceException("Unable to delete records for video");
-		}
-		
+		return encodedString;
 	}
-	@Override
-	public void deleteReferenceUrlById(int videoId) throws ServiceException
-	{
-		
-		try {
-		   if(videodao.getVideoById(videoId)!=null)
-			   videodao.deleteReferenceUrlById(videoId);
-		   else
-			   throw new ServiceException("No video record found for id "+videoId);
-		}
-		catch (DBException e) {
-			throw new ServiceException("Unable to delete reference url records for video");
-		}
-		
-	}
-	@Override
-	public void addVideo(Video video) throws ServiceException{
-		try {
-			videodao.addVideo(video);	
-		} 
-		catch(DBException e) {
-			throw new ServiceException("Video already exists");
-		}
-		
-	}
-	@Override
-	public void updateVideo(Video video) throws ServiceException{
-		try {
-			videodao.updateVideo(video);
-		} 
-		catch (DBException e) {
-			throw new ServiceException("Unable to update records for video");
-		}
-		
-	}
-	@Override
-	public String downloadFileFromLocal(String fileName)throws ServiceException {
-		Path path = Paths.get(UPLOAD_DIRECTORY + fileName);
-		System.out.println(path);
-		System.out.println(path.toUri());
-		Resource resource = null;
-		String encodedString;
-		String decodedString;
-		try {
-			//resource = new UrlResource(path.toUri());
-			resource=new FileSystemResource(path);
-			    
-		    byte[] bytes =Files.readAllBytes(path);
-		    Base64.Encoder encoder = Base64.getEncoder();
-		    byte[] encoded=encoder.encode(bytes);
-		    encodedString = new String(encoded);
-		    
-		    Base64.Decoder decoder = Base64.getDecoder();  
-		    byte[] decoded=decoder.decode(encoded);
-		    decodedString=new String(decoded);
-		   
-	}
-		catch(IOException e)
-		{
-		       throw new ServiceException("Error in downloading files");	
-		
-		}
-		 return encodedString;
-		}
 }

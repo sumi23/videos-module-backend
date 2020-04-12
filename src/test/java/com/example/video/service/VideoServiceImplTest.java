@@ -1,30 +1,26 @@
 package com.example.video.service;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import com.example.video.dao.VideoDAOImpl;
 import com.example.video.exception.DBException;
@@ -43,22 +39,18 @@ class VideoServiceImplTest {
 
 	@Mock
 	VideoDAOImpl videodao;
-
-	@Spy
+	
 	List<Level> levelList = new ArrayList<Level>();
 
-	@Spy
 	List<Category> categoryList = new ArrayList<Category>();
 
-	@Spy
 	List<Video> videoList = new ArrayList<Video>();
 
-	@Spy
 	Video video = new Video();
-	
-	private int id=1;
+
+	private int id = 1;
 	String fileName;
-	
+
 	@Captor
 	private ArgumentCaptor<String> fileArg;
 
@@ -67,37 +59,37 @@ class VideoServiceImplTest {
 
 	@Captor
 	private ArgumentCaptor<Video> videoArg;
-	// ArgumentCaptor<Video> videoArgu=ArgumentCaptor.forClass(Video.class);
+	
+	ReferenceArtifact refArt = new ReferenceArtifact();
+	SampleProgram samProg = new SampleProgram();
+	ReferenceUrl refUrl = new ReferenceUrl();
 
 	@BeforeEach
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 		levelList = getLevelList();
 		categoryList = getCategoryList();
-		videoList=getVideoList();
+		videoList = getVideoList();
 		video = getVideo();
-       
+
 	}
 
 	@Test
 	void testGetAllVideos() throws ServiceException {
-     
+
 		when(videodao.getAllVideos()).thenReturn(videoList);
 		assertNotNull(videoList);
 		assertEquals(videoService.getAllVideos(), getVideoList());
 		verify(videodao, times(1)).getAllVideos();
 	}
-	
-	
+
 	@Test
-	void testGetAllVideosExpectFailure() throws DBException, ServiceException{
+	void testGetAllVideosExpectFailure() throws DBException, ServiceException {
+		List<Video> videoList = new ArrayList<>();
+		when(videodao.getAllVideos()).thenReturn(videoList);
 		doThrow(DBException.class).when(videodao).getAllVideos();
-		//when(videodao.getAllVideos()).thenReturn(videoList);
-        doReturn(null).when(videodao).getAllVideos();
-	   assertThrows(ServiceException.class,()->{videoService.getAllVideos();});
-		//assertEquals(videoService.getAllVideos(), null);
+		assertThrows(ServiceException.class, () -> videoService.getAllVideos());
 	}
-	
 
 	@Test
 	void testGetAllLevels() throws ServiceException {
@@ -109,11 +101,27 @@ class VideoServiceImplTest {
 	}
 
 	@Test
+	void testGetAllLevelsExpectFailure() throws DBException, ServiceException {
+		assertTrue(videodao.getAllLevels().isEmpty());
+		doThrow(DBException.class).when(videodao).getAllLevels();
+		assertThrows(ServiceException.class, () ->videoService.getAllLevels());
+
+	}
+
+	@Test
 	void testGetAllCategories() throws ServiceException {
 		when(videodao.getAllCategories()).thenReturn(categoryList);
-		assertNotNull(categoryList);
+		assertTrue(categoryList.size()>0);
 		assertEquals(videoService.getAllCategories(), getCategoryList());
 		verify(videodao, times(1)).getAllCategories();
+	}
+
+	@Test
+	void testGetAllCategoriesExpectFailure() throws DBException, ServiceException {
+		assertTrue(videodao.getAllCategories().isEmpty());
+		doThrow(DBException.class).when(videodao).getAllCategories();
+		assertThrows(ServiceException.class, () ->videoService.getAllCategories());
+
 	}
 
 	@Test
@@ -125,11 +133,29 @@ class VideoServiceImplTest {
 	}
 
 	@Test
+	void testGetVideoByIdExpectFailure() throws DBException, ServiceException {
+		int id = 0;
+		when(videodao.getVideoById(id)).thenReturn(null);
+		assertNull(videodao.getVideoById(id));
+		doThrow(DBException.class).when(videodao).getVideoById(id);
+		assertThrows(ServiceException.class, () ->videoService.getVideoById(id));
+	}
+
+	@Test
 	void testGetActivatedVideos() throws ServiceException {
 		when(videodao.getActivatedVideos()).thenReturn(videoList);
 		assertNotNull(videoList);
 		assertEquals(videoService.getActivatedVideos(), getVideoList());
 		verify(videodao, times(1)).getActivatedVideos();
+	}
+
+	@Test
+	void testGetActivatedVideosExpectFailure() throws DBException, ServiceException {
+		List<Video> videoList = new ArrayList<>();
+		when(videodao.getActivatedVideos()).thenReturn(videoList);
+		assertTrue(videoList.isEmpty());
+		doThrow(DBException.class).when(videodao).getActivatedVideos();
+		assertThrows(ServiceException.class, () -> videoService.getActivatedVideos());
 	}
 
 	@Test
@@ -141,57 +167,134 @@ class VideoServiceImplTest {
 	}
 
 	@Test
+	void testGetDeactivatedExpectFailure() throws DBException, ServiceException {
+		List<Video> videoList = new ArrayList<>();
+		when(videodao.getDeactivatedVideos()).thenReturn(videoList);
+		assertTrue(videoList.isEmpty());
+		doThrow(DBException.class).when(videodao).getDeactivatedVideos();
+		assertThrows(ServiceException.class, () -> videoService.getDeactivatedVideos());
+	}
+
+	@Test
 	void testToggleStatus() throws ServiceException {
-		// fail("Not yet implemented");
-		// perform the call
 		when(videodao.getVideoById(id)).thenReturn(video);
 		assertNotNull(video);
-				videoService.toggleStatus(id);
-				// verify the mocks
-				verify(videodao, times(1)).toggleStatus(arg.capture());
-				assertEquals(id, arg.getValue());
+		videoService.toggleStatus(id);
+		verify(videodao, times(1)).toggleStatus(arg.capture());
+		assertEquals(id, arg.getValue());
+	}
+	
+	@Test
+	void testToggleStatusExpectFailure() throws ServiceException {
+		when(videodao.getVideoById(id)).thenReturn(null);
+		doThrow(DBException.class).when(videodao).toggleStatus(id);
+		assertThrows(ServiceException.class, () -> videoService.toggleStatus(id));
 	}
 
 	@Test
 	void testDeleteVideoById() throws ServiceException {
 		when(videodao.getVideoById(id)).thenReturn(video);
 		assertNotNull(video);
+		doNothing().when(videodao).deleteVideoById(id);
 		videoService.deleteVideoById(id);
 		verify(videodao, times(1)).deleteVideoById(arg.capture());
 		assertEquals(id, arg.getValue());
 	}
 
 	@Test
-	void testAddVideo() throws ServiceException {
-		videoService.addVideo(video);
-		verify(videodao, times(1)).addVideo(videoArg.capture());
-		// assertEquals("java",videoArgu.getValue().getName());
-		assertNotNull(videoArg);
+	void testDeleteVideoByIdExpectFailure() throws ServiceException {
+		when(videodao.getVideoById(id)).thenReturn(null);
+		assertNull(videodao.getVideoById(id));
+		doThrow(DBException.class).when(videodao).deleteVideoById(id);
+		assertThrows(ServiceException.class,()->videoService.deleteVideoById(id));
 	}
 	
 	@Test
+	void testDeleteReferenceArtifactById() throws ServiceException {
+		when(videodao.getReferenceArtifactById(id)).thenReturn(refArt);
+		assertNotNull(refArt);
+		doNothing().when(videodao).deleteReferenceArtifactById(id);
+		videoService.deleteReferenceArtifactById(id);
+		verify(videodao, times(1)).deleteReferenceArtifactById(arg.capture());
+		assertEquals(id, arg.getValue());
+	}
+	
+	@Test
+	void testDeleteReferenceArtifactByIdExpectFailure() throws ServiceException {
+		when(videodao.getReferenceArtifactById(anyInt())).thenReturn(null);
+		assertNull(videodao.getReferenceArtifactById(anyInt()));
+		doThrow(DBException.class).when(videodao).deleteReferenceArtifactById(anyInt());
+		assertThrows(ServiceException.class,()->videoService.deleteReferenceArtifactById(id));
+	}
+	
+	@Test
+	void testDeleteSampleProgramById() throws ServiceException {
+		when(videodao.getSampleProgramById(anyInt())).thenReturn(samProg);
+		assertNotNull(samProg);
+		doNothing().when(videodao).deleteSampleProgramById(anyInt());
+		videoService.deleteSampleProgramById(anyInt());
+		verify(videodao, times(1)).deleteSampleProgramById(arg.capture());
+		assertEquals(anyInt(), arg.getValue());
+	}
+	
+	@Test
+	void testDeleteSampleProgramByIdExpectFailure() throws ServiceException {
+		when(videodao.getSampleProgramById(id)).thenReturn(null);
+		assertNull(videodao.getSampleProgramById(id));
+		doThrow(DBException.class).when(videodao).deleteSampleProgramById(id);
+		assertThrows(ServiceException.class,()->videoService.deleteSampleProgramById(id));
+	}
+	@Test
+	void testDeleteReferenceUrlById() throws ServiceException {
+		when(videodao.getReferenceUrlById(id)).thenReturn(refUrl);
+		assertNotNull(refUrl);
+		doNothing().when(videodao).deleteReferenceUrlById(id);
+		videoService.deleteReferenceUrlById(id);
+		verify(videodao, times(1)).deleteReferenceUrlById(arg.capture());
+		assertEquals(id, arg.getValue());
+	}
+
+	@Test
+	void testDeleteReferenceUrlByIdExpectFailure() throws ServiceException {
+		when(videodao.getReferenceUrlById(id)).thenReturn(null);
+		assertNull(videodao.getReferenceUrlById(id));
+		doThrow(DBException.class).when(videodao).deleteReferenceUrlById(id);
+		assertThrows(ServiceException.class,()->videoService.deleteReferenceUrlById(id));
+	}
+	@Test
+	void testAddVideo() throws ServiceException {
+		videoService.addVideo(video);
+		verify(videodao, times(1)).addVideo(videoArg.capture());
+		assertNotNull(videoArg);
+	}
+
+	@Test
 	void testAddVideoExpectFailure() throws ServiceException {
 		doThrow(DBException.class).when(videodao).addVideo(video);
-//		videoService.addVideo(video);
-//		verify(videodao, times(1)).addVideo(videoArg.capture());
-//		// assertEquals("java",videoArgu.getValue().getName());
-//		assertNotNull(videoArg);
+		assertThrows(ServiceException.class, () -> videoService.addVideo(video));
 	}
 
 	@Test
 	void testUpdateVideo() throws ServiceException {
-		
+
 		videoService.updateVideo(video);
 		verify(videodao, times(1)).updateVideo(videoArg.capture());
-		// assertEquals("java",videoArgu.getValue().getName());
 		assertNotNull(videoArg);
 	}
+	
+	@Test
+	void testUpdateVideoExpectFailure() throws ServiceException {
+		doThrow(DBException.class).when(videodao).updateVideo(video);
+		assertThrows(ServiceException.class, () -> videoService.updateVideo(video));
+	}
+	
 
-//	@Test
-//	void testDownloadFileFromLocal() throws ServiceException {
-//		// fail("Not yet implemented");
-//		
-//	}
+	@Test
+	void testDownloadFileFromLocal() throws ServiceException, IOException {
+		String fileName="example.txt";
+		videoService.downloadFileFromLocal(fileName);
+		
+	}
 
 	public List<Level> getLevelList() {
 
@@ -218,13 +321,11 @@ class VideoServiceImplTest {
 		referenceArtifact1.setName("reference artifact example");
 		referenceArtifact1.setFile("java.txt");
 		referenceArtifact1.setDescription("This is a reference artifact");
-		ReferenceArtifact referenceArtifact2 = new ReferenceArtifact();
 		SampleProgram sampleProgram1 = new SampleProgram();
 		sampleProgram1.setId(1);
 		sampleProgram1.setName("sample program example");
 		sampleProgram1.setFile("sample.txt");
 		sampleProgram1.setDescription("This is a sample program");
-		SampleProgram sampleProgram2 = new SampleProgram();
 		ReferenceUrl referenceUrl1 = new ReferenceUrl();
 		referenceUrl1.setId(1);
 		referenceUrl1.setName("reference url example");
@@ -263,8 +364,8 @@ class VideoServiceImplTest {
 		return video;
 
 	}
-	
-	public List<Video> getVideoList(){
+
+	public List<Video> getVideoList() {
 		videoList.add(video);
 		return videoList;
 	}
