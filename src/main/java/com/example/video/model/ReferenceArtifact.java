@@ -1,6 +1,5 @@
 package com.example.video.model;
 
-import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,12 +17,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 @Table(name = "reference_artifacts", uniqueConstraints = {
 		@UniqueConstraint(columnNames = "name", name = "unique_reference_artifact_name") })
-public class ReferenceArtifact implements Serializable {
+public class ReferenceArtifact {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
